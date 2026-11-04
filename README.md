@@ -161,7 +161,8 @@ The skills are also published as a browsable site, so they read as general refer
 in-editor context. `.github/workflows/pages.yml` renders the skills into a browsable **handbook**
 with **Zensical** (the maintained successor to Material for MkDocs) and deploys to GitHub Pages on
 each push to `main` that touches `skills/`, `README.md`, `AGENTS.md`, or `mkdocs.yml`. `README.md`
-is the site's home page; the theme and navigation are configured in `mkdocs.yml`.
+is the site's home page; the theme is configured in `mkdocs.yml` and the navigation is built
+automatically from the staged pages.
 
 One-time setup: **Settings → Pages → Source = "GitHub Actions"**.
 
@@ -176,7 +177,7 @@ Notes:
   (`../../../databricks-web-scraping/...`) don't fail it — but they **404 on the public site**. Make
   public-facing skills self-contained, or replace those links with plain text.
 - Local preview: `pip install zensical`, then stage the content the same way CI does and serve it:
-  `rm -rf docs site && mkdir docs && cp -R skills docs/skills && rm -rf docs/skills/api-lawstronaut && cp README.md docs/index.md && cp AGENTS.md docs/AGENTS.md && zensical serve`
+  `rm -rf docs site && mkdir -p docs docs/instructions docs/contributing && cp -R skills docs/skills && rm -rf docs/skills/api-lawstronaut && cp README.md docs/index.md && cp .github/copilot-instructions.md docs/instructions/ && cp .github/instructions/*.md docs/instructions/ && cp AGENTS.md docs/contributing/index.md && zensical serve`
   (the generated `docs/` and `site/` dirs are gitignored — neither Zensical nor MkDocs allow a
   `docs_dir` equal to the config file's own directory, so content is staged into a child `docs/`;
   the internal `api-lawstronaut` skill is dropped from the staging).
@@ -202,6 +203,15 @@ Notes:
 - The `description` is the discovery surface — write "Use when…" with concrete trigger keywords.
 - Keep `SKILL.md` lean; push exhaustive detail into `references/` (progressive loading). Use
   relative `./references/...` links within a skill.
+- The published site's navigation is **built automatically** by Zensical from the staged `docs/`
+  tree: each skill folder appears under **Skills**, and page titles come from each file's first `#`
+  heading. There is no nav list to maintain.
 - Links into a sibling repo are workspace-relative from here (e.g.
   `../../../databricks-web-scraping/...`); they resolve only when that repo is a sibling under the
   same root.
+
+## Maintainer
+
+Created and maintained by **Aleksandrs Krivickis** — [LinkedIn](https://www.linkedin.com/in/aleksandrskrivickis/).
+
+Found a bug or want to suggest a skill? [**Open an issue**](https://github.com/aleksandrskrivickis/.agents/issues).

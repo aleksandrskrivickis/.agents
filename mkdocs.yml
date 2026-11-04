@@ -1,9 +1,14 @@
-site_name: The Agent Skills Handbook
+site_name: The agent skills handbook
 site_description: >-
     A handbook of reusable, production-tested agent skills for Databricks, Spark and Python
     testing — portable across GitHub Copilot, Claude Code and other skills-compatible agents.
 site_url: https://aleksandrskrivickis.github.io/.agents/
-site_author: Shared Agent Skills
+site_author: Aleksandrs Krivickis
+repo_url: https://github.com/aleksandrskrivickis/.agents
+repo_name: aleksandrskrivickis/.agents
+copyright: >-
+    Maintained by <a href="https://www.linkedin.com/in/aleksandrskrivickis/">Aleksandrs Krivickis</a> &middot;
+    <a href="https://github.com/aleksandrskrivickis/.agents/issues">Report an issue</a>
 
 # Zensical (the maintained successor to Material for MkDocs) reads this mkdocs.yml.
 # Content is staged into docs/ by the build step — neither Zensical nor MkDocs allow docs_dir ".".
@@ -66,38 +71,3 @@ markdown_extensions:
 
 plugins:
     - search
-
-nav:
-    - Home: index.md
-    - "Databricks & Spark":
-          - Spark Declarative Pipelines:
-                - Overview: skills/develop-sdp/SKILL.md
-                - Python API (dp): skills/develop-sdp/references/sdp-python-api.md
-                - AUTO CDC: skills/develop-sdp/references/auto-cdc.md
-                - "Bundles, editor & publishing": skills/develop-sdp/references/bundles-editor-publishing.md
-          - PySpark Patterns:
-                - Overview: skills/develop-pyspark/SKILL.md
-                - "pandas UDFs & memory": skills/develop-pyspark/references/pandas-udfs-and-memory.md
-                - "Stateful streaming & flows": skills/develop-pyspark/references/stateful-streaming-and-flows.md
-                - "Model serving & batching": skills/develop-pyspark/references/model-serving-and-batching.md
-                - "Joins, windows & performance": skills/develop-pyspark/references/joins-windows-performance.md
-                - "Throughput & partitioning": skills/develop-pyspark/references/throughput-and-partitioning.md
-                - Reliable API calls: skills/develop-pyspark/references/reliable-api-calls.md
-                - "File & document ingestion": skills/develop-pyspark/references/file-and-document-ingestion.md
-          - Scala on Spark:
-                - Overview: skills/develop-scala/SKILL.md
-                - Custom FileFormat DataSource: skills/develop-scala/references/custom-fileformat-datasource.md
-                - "Build, options & testing": skills/develop-scala/references/build-options-testing.md
-          - Asset Bundles:
-                - Overview: skills/databricks-asset-bundles/SKILL.md
-                - "Targets & modes": skills/databricks-asset-bundles/references/targets-and-modes.md
-                - "Variables & interpolation": skills/databricks-asset-bundles/references/variables-and-interpolation.md
-                - "Resources & deploy": skills/databricks-asset-bundles/references/resources-and-deploy.md
-    - Testing:
-          - Python Tests:
-                - Overview: skills/test-python/SKILL.md
-                - Notebook harness: skills/test-python/references/notebook-harness.md
-                - "Integration & corpus": skills/test-python/references/integration-and-corpus-testing.md
-          - GitHub Actions pipeline: skills/test-workflows-github/SKILL.md
-          - Azure DevOps pipeline: skills/test-workflows-devops/SKILL.md
-    - Authoring: AGENTS.md

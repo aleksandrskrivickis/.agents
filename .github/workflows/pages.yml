@@ -45,11 +45,13 @@ jobs:
             - name: Stage docs
               run: |
                   rm -rf docs site
-                  mkdir -p docs
+                  mkdir -p docs docs/instructions docs/contributing
                   cp -R skills docs/skills
                   rm -rf docs/skills/api-lawstronaut
                   cp README.md docs/index.md
-                  cp AGENTS.md docs/AGENTS.md
+                  cp .github/copilot-instructions.md docs/instructions/
+                  cp .github/instructions/*.md docs/instructions/
+                  cp AGENTS.md docs/contributing/index.md
 
             - name: Build the site
               run: zensical build --clean
