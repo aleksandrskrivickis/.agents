@@ -1,0 +1,29 @@
+site_name: Shared Agent Skills
+site_description: Self-documenting agent skills for GitHub Copilot and Claude Code.
+
+# Render the repo's Markdown in place (skills have no index/front-matter requirement under MkDocs).
+docs_dir: .
+exclude_docs: |
+    CLAUDE.md
+    LICENSE
+
+theme:
+    name: material
+    features:
+        - navigation.sections
+        - navigation.indexes
+        - content.code.copy
+        - search.suggest
+        - toc.follow
+
+markdown_extensions:
+    - tables
+    - admonition
+    - attr_list
+    - toc:
+          permalink: true
+    - pymdownx.highlight
+    - pymdownx.superfences
+
+plugins:
+    - search

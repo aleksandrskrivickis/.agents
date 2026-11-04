@@ -1,0 +1,83 @@
+name: Tests
+
+# GitHub Actions mirror of databricks-web-scraping's Azure DevOps test pipeline
+# (uv + advisory ruff + pytest with a JUnit report). It is a template: dormant until the
+# repository actually contains a Python project (pyproject.toml + src/ + tests/), so this
+# Markdown-only skills repo stays green.
+
+on:
+    push:
+        branches: [main]
+        paths:
+            [
+                "src/**",
+                "tests/**",
+                "pyproject.toml",
+                ".github/workflows/tests.yml",
+            ]
+    pull_request:
+        paths:
+            [
+                "src/**",
+                "tests/**",
+                "pyproject.toml",
+                ".github/workflows/tests.yml",
+            ]
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Guard — require a Python project
+              id: guard
+              run: |
+                  if [ -f pyproject.toml ]; then
+                    echo "present=true" >> "$GITHUB_OUTPUT"
+                  else
+                    echo "present=false" >> "$GITHUB_OUTPUT"
+                    echo "No pyproject.toml — template workflow, nothing to test. Skipping."
+                  fi
+
+            - name: Set up Python 3.12
+              if: steps.guard.outputs.present == 'true'
+              uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12" # matches requires-python >=3.10,<3.13
+
+            - name: Install uv
+              if: steps.guard.outputs.present == 'true'
+              run: |
+                  curl -LsSf https://astral.sh/uv/install.sh | sh
+                  echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+            - name: Install dependencies
+              if: steps.guard.outputs.present == 'true'
+              run: uv sync --group dev
+
+            # Advisory (mirrors the DevOps pipeline): lint findings don't fail the build yet.
+            - name: Ruff check (advisory)
+              if: steps.guard.outputs.present == 'true'
+              continue-on-error: true
+              run: uv run ruff check src/ tests/
+
+            - name: Ruff format check (advisory)
+              if: steps.guard.outputs.present == 'true'
+              continue-on-error: true
+              run: uv run ruff format --check src/ tests/
+
+            - name: Unit tests
+              if: steps.guard.outputs.present == 'true'
+              run: uv run pytest -q --junitxml=junit/test-results.xml
+
+            - name: Upload test results
+              if: ${{ always() && steps.guard.outputs.present == 'true' }}
+              uses: actions/upload-artifact@v4
+              with:
+                  name: test-results
+                  path: junit/test-results.xml

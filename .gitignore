@@ -1,0 +1,3 @@
+# Local, per-clone Claude Code symlink — created post-clone, never committed
+# (see README → "Post-clone setup"). Platform-specific; must not travel with the repo.
+/.claude/skills
