@@ -1,29 +1,103 @@
-site_name: Shared Agent Skills
-site_description: Self-documenting agent skills for GitHub Copilot and Claude Code.
+site_name: The Agent Skills Handbook
+site_description: >-
+    A handbook of reusable, production-tested agent skills for Databricks, Spark and Python
+    testing — portable across GitHub Copilot, Claude Code and other skills-compatible agents.
+site_url: https://aleksandrskrivickis.github.io/.agents/
+site_author: Shared Agent Skills
 
-# Render the repo's Markdown in place (skills have no index/front-matter requirement under MkDocs).
-docs_dir: .
-exclude_docs: |
-    CLAUDE.md
-    LICENSE
+# Zensical (the maintained successor to Material for MkDocs) reads this mkdocs.yml.
+# Content is staged into docs/ by the build step — neither Zensical nor MkDocs allow docs_dir ".".
+docs_dir: docs
+site_dir: site
 
 theme:
     name: material
+    variant: modern
+    font:
+        text: Inter
+        code: JetBrains Mono
+    palette:
+        - media: "(prefers-color-scheme)"
+          toggle:
+              icon: lucide/sun-moon
+              name: Switch to light mode
+        - media: "(prefers-color-scheme: light)"
+          scheme: default
+          primary: indigo
+          accent: deep purple
+          toggle:
+              icon: lucide/sun
+              name: Switch to dark mode
+        - media: "(prefers-color-scheme: dark)"
+          scheme: slate
+          primary: indigo
+          accent: deep purple
+          toggle:
+              icon: lucide/moon
+              name: Switch to system preference
     features:
+        - navigation.tabs
+        - navigation.tabs.sticky
         - navigation.sections
         - navigation.indexes
-        - content.code.copy
-        - search.suggest
+        - navigation.top
+        - navigation.instant
+        - navigation.instant.progress
         - toc.follow
+        - content.code.copy
+        - content.code.annotate
+        - search.suggest
+        - search.highlight
 
 markdown_extensions:
     - tables
     - admonition
     - attr_list
+    - md_in_html
+    - def_list
     - toc:
           permalink: true
-    - pymdownx.highlight
+    - pymdownx.highlight:
+          anchor_linenums: true
     - pymdownx.superfences
+    - pymdownx.details
+    - pymdownx.tabbed:
+          alternate_style: true
 
 plugins:
     - search
+
+nav:
+    - Home: index.md
+    - "Databricks & Spark":
+          - Spark Declarative Pipelines:
+                - Overview: skills/develop-sdp/SKILL.md
+                - Python API (dp): skills/develop-sdp/references/sdp-python-api.md
+                - AUTO CDC: skills/develop-sdp/references/auto-cdc.md
+                - "Bundles, editor & publishing": skills/develop-sdp/references/bundles-editor-publishing.md
+          - PySpark Patterns:
+                - Overview: skills/develop-pyspark/SKILL.md
+                - "pandas UDFs & memory": skills/develop-pyspark/references/pandas-udfs-and-memory.md
+                - "Stateful streaming & flows": skills/develop-pyspark/references/stateful-streaming-and-flows.md
+                - "Model serving & batching": skills/develop-pyspark/references/model-serving-and-batching.md
+                - "Joins, windows & performance": skills/develop-pyspark/references/joins-windows-performance.md
+                - "Throughput & partitioning": skills/develop-pyspark/references/throughput-and-partitioning.md
+                - Reliable API calls: skills/develop-pyspark/references/reliable-api-calls.md
+                - "File & document ingestion": skills/develop-pyspark/references/file-and-document-ingestion.md
+          - Scala on Spark:
+                - Overview: skills/develop-scala/SKILL.md
+                - Custom FileFormat DataSource: skills/develop-scala/references/custom-fileformat-datasource.md
+                - "Build, options & testing": skills/develop-scala/references/build-options-testing.md
+          - Asset Bundles:
+                - Overview: skills/databricks-asset-bundles/SKILL.md
+                - "Targets & modes": skills/databricks-asset-bundles/references/targets-and-modes.md
+                - "Variables & interpolation": skills/databricks-asset-bundles/references/variables-and-interpolation.md
+                - "Resources & deploy": skills/databricks-asset-bundles/references/resources-and-deploy.md
+    - Testing:
+          - Python Tests:
+                - Overview: skills/test-python/SKILL.md
+                - Notebook harness: skills/test-python/references/notebook-harness.md
+                - "Integration & corpus": skills/test-python/references/integration-and-corpus-testing.md
+          - GitHub Actions pipeline: skills/test-workflows-github/SKILL.md
+          - Azure DevOps pipeline: skills/test-workflows-devops/SKILL.md
+    - Authoring: AGENTS.md

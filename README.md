@@ -158,24 +158,28 @@ repo's `.agents/`.
 ## Published knowledge site (GitHub Pages)
 
 The skills are also published as a browsable site, so they read as general reference and not only
-in-editor context. `.github/workflows/pages.yml` renders every Markdown file with **MkDocs
-Material** and deploys to GitHub Pages on each push to `main` that touches `skills/`, `README.md`,
-`AGENTS.md`, or `mkdocs.yml`.
+in-editor context. `.github/workflows/pages.yml` renders the skills into a browsable **handbook**
+with **Zensical** (the maintained successor to Material for MkDocs) and deploys to GitHub Pages on
+each push to `main` that touches `skills/`, `README.md`, `AGENTS.md`, or `mkdocs.yml`. `README.md`
+is the site's home page; the theme and navigation are configured in `mkdocs.yml`.
 
 One-time setup: **Settings → Pages → Source = "GitHub Actions"**.
 
 > ⚠️ **Confidentiality — read before going public.** GitHub Pages is **public** on public repos
 > (and on Free/Pro even when the repo is private). Skills that carry **internal** material are kept
-> OUT of this repo entirely via `.gitignore` (and listed in `mkdocs.yml` → `exclude_docs` as a
-> second guard), so they never reach the remote or the published site. The skills committed here are
-> generic, public-safe knowledge.
+> OUT of this repo entirely via `.gitignore` (and dropped from the staged content in the Pages build
+> as a second guard), so they never reach the remote or the published site. The skills committed
+> here are generic, public-safe knowledge.
 
 Notes:
 - The build is **non-strict**, so the internal sibling-repo links
   (`../../../databricks-web-scraping/...`) don't fail it — but they **404 on the public site**. Make
   public-facing skills self-contained, or replace those links with plain text.
-- Local preview: `pip install mkdocs-material && mkdocs serve` (use `serve`; a plain `mkdocs build`
-  fails because `docs_dir` is the repo root — CI builds to `$RUNNER_TEMP/site`).
+- Local preview: `pip install zensical`, then stage the content the same way CI does and serve it:
+  `rm -rf docs site && mkdir docs && cp -R skills docs/skills && rm -rf docs/skills/api-lawstronaut && cp README.md docs/index.md && cp AGENTS.md docs/AGENTS.md && zensical serve`
+  (the generated `docs/` and `site/` dirs are gitignored — neither Zensical nor MkDocs allow a
+  `docs_dir` equal to the config file's own directory, so content is staged into a child `docs/`;
+  the internal `api-lawstronaut` skill is dropped from the staging).
 
 ## Using these skills on another computer
 

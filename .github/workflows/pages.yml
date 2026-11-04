@@ -1,7 +1,7 @@
 name: Deploy to GitHub Pages
 run-name: Publish skills knowledge to GitHub Pages
 
-# Renders the Markdown skills into a browsable site (MkDocs Material) and deploys to GitHub Pages.
+# Renders the Markdown skills into a browsable handbook (Zensical) and deploys to GitHub Pages.
 # main only. Prerequisite: Settings → Pages → Source = "GitHub Actions".
 on:
     push:
@@ -36,17 +36,28 @@ jobs:
               with:
                   python-version: "3.12"
 
-            - name: Install MkDocs Material
-              run: pip install mkdocs-material
+            - name: Install Zensical
+              run: pip install zensical
 
-            # Build outside the repo root: docs_dir is "." and MkDocs refuses a site_dir inside docs_dir.
+            # Stage content into a child docs/ dir — Zensical (like MkDocs) can't use docs_dir ".".
+            # README.md becomes the site index. The gitignored api-lawstronaut skill is absent from
+            # the checkout, and dropped explicitly so it never reaches the site.
+            - name: Stage docs
+              run: |
+                  rm -rf docs site
+                  mkdir -p docs
+                  cp -R skills docs/skills
+                  rm -rf docs/skills/api-lawstronaut
+                  cp README.md docs/index.md
+                  cp AGENTS.md docs/AGENTS.md
+
             - name: Build the site
-              run: mkdocs build --site-dir "$RUNNER_TEMP/site"
+              run: zensical build --clean
 
             - uses: actions/configure-pages@v5
             - uses: actions/upload-pages-artifact@v3
               with:
-                  path: ${{ runner.temp }}/site
+                  path: site
             - name: Deploy to GitHub Pages
               id: deployment
               uses: actions/deploy-pages@v4
