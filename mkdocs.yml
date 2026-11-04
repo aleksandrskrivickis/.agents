@@ -15,11 +15,6 @@ copyright: >-
 docs_dir: docs
 site_dir: site
 
-# The instruction files live under .github; dot-directories are excluded by default, so re-include it.
-exclude_docs: |
-    !/.github/
-    !/.github/**
-
 theme:
     name: material
     variant: modern

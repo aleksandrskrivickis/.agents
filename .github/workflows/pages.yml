@@ -45,12 +45,12 @@ jobs:
             - name: Stage docs
               run: |
                   rm -rf docs site
-                  mkdir -p docs docs/.github/instructions docs/contributing
+                  mkdir -p docs docs/github/instructions docs/contributing
                   cp -R skills docs/skills
                   rm -rf docs/skills/api-lawstronaut
                   cp README.md docs/index.md
-                  cp .github/copilot-instructions.md docs/.github/
-                  cp .github/instructions/*.md docs/.github/instructions/
+                  cp .github/copilot-instructions.md docs/github/
+                  cp .github/instructions/*.md docs/github/instructions/
                   cp AGENTS.md docs/contributing/index.md
 
             - name: Build the site
