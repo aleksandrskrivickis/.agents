@@ -12,14 +12,12 @@ chapter argues for.
 
 ## How a chapter is organised
 
-| Section | What it gives you |
-|---|---|
-| Opening note | What the subject is, where the knowledge came from, and what it does not cover |
-| Detailed references | The deep material, one file per topic |
-| Rules | The handful of things that prevent most of the failures in this area |
-| Symptom → fix index | A lookup table for when something is already broken |
-| Commands | The commands worth memorising |
-| When to use / Related skills | Where the boundaries are |
+- **Opening note** — what the subject is, where the knowledge came from, and what it does not cover.
+- **Detailed references** — the deep material, one file per topic.
+- **Rules** — the handful of things that prevent most of the failures in this area.
+- **Symptom → fix index** — a lookup for when something is already broken.
+- **Commands** — the commands worth memorising.
+- **When to use / Related skills** — where the boundaries are.
 
 Reference files open with a **Source** note stating where their claims come from. Where a claim is
 inferred rather than observed it is tagged inline — `[repo]` for confirmed in code, `[docs]` for a
@@ -29,32 +27,24 @@ vendor-documented constraint, `[deduced]` for an inference, `[?]` for a guess wo
 
 ### Data pipelines on Databricks
 
-| Skill | What it covers |
-|---|---|
-| [develop-sdp](./develop-sdp/SKILL.md) | Spark Declarative Pipelines — the `pyspark.pipelines` API, streaming tables vs materialized views, flows, expectations, AUTO CDC, the event log, and which features are Apache SDP vs Databricks-only |
-| [develop-pyspark](./develop-pyspark/SKILL.md) | PySpark under load — pandas/Arrow UDFs and OOM, Arrow conversion failures, model serving, chunking and embeddings, stateful streaming, joins and skew, throughput, reliable API calls, file ingestion |
-| [develop-scala](./develop-scala/SKILL.md) | Scala on Spark — a custom `FileFormat` DataSource, `UnsafeRow` construction, Maven shading, ScalaTest |
+- [develop-sdp](./develop-sdp/SKILL.md) — Spark Declarative Pipelines: the `pyspark.pipelines` API, streaming tables vs materialized views, flows, expectations, AUTO CDC, the event log, and which features are Apache SDP vs Databricks-only.
+- [develop-pyspark](./develop-pyspark/SKILL.md) — PySpark under load: pandas/Arrow UDFs and OOM, Arrow conversion failures, model serving, chunking and embeddings, stateful streaming, joins and skew, throughput, reliable API calls, file ingestion.
+- [develop-scala](./develop-scala/SKILL.md) — Scala on Spark: a custom `FileFormat` DataSource, `UnsafeRow` construction, Maven shading, ScalaTest.
 
 ### Deployment and infrastructure
 
-| Skill | What it covers |
-|---|---|
-| [databricks-asset-bundles](./databricks-asset-bundles/SKILL.md) | `databricks.yml` — targets and deployment modes, variables and interpolation, resource types, Lakebase, post-deploy runs, and the deploy-time gotchas |
-| [develop-infrastructure](./develop-infrastructure/SKILL.md) | The Azure platform underneath — Bicep at subscription scope, Terraform for Unity Catalog, and the Azure DevOps pipelines that orchestrate both |
+- [databricks-asset-bundles](./databricks-asset-bundles/SKILL.md) — `databricks.yml`: targets and deployment modes, variables and interpolation, resource types, Lakebase, post-deploy runs, and the deploy-time gotchas.
+- [develop-infrastructure](./develop-infrastructure/SKILL.md) — the Azure platform underneath: Bicep at subscription scope, Terraform for Unity Catalog, and the Azure DevOps pipelines that orchestrate both.
 
 ### Testing and CI
 
-| Skill | What it covers |
-|---|---|
-| [test-python](./test-python/SKILL.md) | pytest layout, testing non-importable notebook modules, local-Spark fixtures, bundle and wheel tests, integration and golden-corpus testing |
-| [test-workflows-github](./test-workflows-github/SKILL.md) | A GitHub Actions lint-and-test pipeline, and how merges actually get gated |
-| [test-workflows-devops](./test-workflows-devops/SKILL.md) | The Azure DevOps equivalent, including the Azure Repos `pr:` trigger trap |
+- [test-python](./test-python/SKILL.md) — pytest layout, testing non-importable notebook modules, local-Spark fixtures, bundle and wheel tests, integration and golden-corpus testing.
+- [test-workflows-github](./test-workflows-github/SKILL.md) — a GitHub Actions lint-and-test pipeline, and how merges actually get gated.
+- [test-workflows-devops](./test-workflows-devops/SKILL.md) — the Azure DevOps equivalent, including the Azure Repos `pr:` trigger trap.
 
 ### Engineering practice
 
-| Skill | What it covers |
-|---|---|
-| [document-decisions](./document-decisions/SKILL.md) | How to write down the constants, thresholds and algorithm choices a system is built on — so that "nobody knows why this is 0.8" stops being true |
+- [document-decisions](./document-decisions/SKILL.md) — how to write down the constants, thresholds and algorithm choices a system is built on, so "nobody knows why this is 0.8" stops being true.
 
 ## Reading order, if you are starting cold
 
