@@ -1,19 +1,6 @@
 # The agent skills handbook
 
-<p align="center">
-  <strong>Production-tested engineering knowledge, written so a coding agent and a human can read the same page.</strong>
-</p>
-
-<p align="center">
-  <a href="https://aleksandrskrivickis.github.io/.agents/"><img alt="Read the handbook" src="https://img.shields.io/badge/read%20the-handbook-3f51b5?style=flat-square"></a>
-  <a href="https://github.com/aleksandrskrivickis/.agents/actions/workflows/publish.yml"><img alt="Publish" src="https://img.shields.io/github/actions/workflow/status/aleksandrskrivickis/.agents/publish.yml?branch=main&label=site&style=flat-square"></a>
-  <a href="https://github.com/aleksandrskrivickis/.agents/releases"><img alt="Release" src="https://img.shields.io/github/v/release/aleksandrskrivickis/.agents?label=release&color=3f51b5&style=flat-square"></a>
-  <img alt="Chapters" src="https://img.shields.io/badge/chapters-9-3f51b5?style=flat-square">
-  <img alt="Agents" src="https://img.shields.io/badge/agents-Copilot%20%C2%B7%20Claude%20Code-3f51b5?style=flat-square">
-  <a href="https://github.com/aleksandrskrivickis/.agents/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/badge/license-GPL--3.0-3f51b5?style=flat-square"></a>
-</p>
-
----
+Production-tested engineering knowledge, written so a coding agent and a human can read the same page.
 
 Nine chapters on building data platforms on Databricks and Azure — what breaks, why it breaks, and
 what the fix actually was. Every entry came out of a production incident, a failed deploy, or a
@@ -24,63 +11,27 @@ the task matches. They are also just good documentation, so they are published a
 **[browsable handbook](https://aleksandrskrivickis.github.io/.agents/)** you can read without an
 editor open.
 
-## What it covers
-
-```
-┌─ your transform code ───────────────────────────────────────────────────┐
-│  develop-pyspark           Arrow & memory · serving · chunking · joins  │
-│  develop-scala             custom DataSource · UnsafeRow · shading      │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─ the declarative framework ─────────────────────────────────────────────┐
-│  develop-sdp               tables & flows · expectations · event log    │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─ how it ships ──────────────────────────────────────────────────────────┐
-│  databricks-asset-bundles  targets · variables · Lakebase · deploy      │
-└─────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─ what it runs on ───────────────────────────────────────────────────────┐
-│  develop-infrastructure    Bicep · Terraform UC · DevOps pipelines      │
-└─────────────────────────────────────────────────────────────────────────┘
-
-┌─ across all of it ──────────────────────────────────────────────────────┐
-│  test-python               harness · local Spark · wheel & bundle       │
-│  test-workflows-*          GitHub Actions · Azure DevOps                │
-│  document-decisions        decision register · findings log             │
-└─────────────────────────────────────────────────────────────────────────┘
-```
-
 ## The chapters
 
 **Data pipelines**
 
-| Chapter | What you get |
-|---|---|
-| [develop-sdp](skills/develop-sdp/SKILL.md) | Spark Declarative Pipelines: the `dp` API, streaming table vs materialized view, choosing an expectations policy, the event log, refresh semantics and a triage playbook. Flags what is Apache SDP vs Databricks-only. |
-| [develop-pyspark](skills/develop-pyspark/SKILL.md) | What goes wrong inside a transform: pandas-UDF OOM, intermittent Arrow `ChunkedArray` crashes, model serving and registration, document chunking vs embedding context windows, skew, throughput, never-raise API calls. |
-| [develop-scala](skills/develop-scala/SKILL.md) | A custom Spark `FileFormat` DataSource — `UnsafeRow` construction, short-name registration, shaded packaging. |
+- [develop-sdp](skills/develop-sdp/SKILL.md) — Spark Declarative Pipelines: the `dp` API, streaming table vs materialized view, expectations, the event log, refresh semantics and a triage playbook.
+- [develop-pyspark](skills/develop-pyspark/SKILL.md) — what goes wrong inside a transform: pandas-UDF OOM, Arrow `ChunkedArray` crashes, model serving, document chunking, skew, throughput, never-raise API calls.
+- [develop-scala](skills/develop-scala/SKILL.md) — a custom Spark `FileFormat` DataSource: `UnsafeRow` construction, short-name registration, shaded packaging.
 
 **Deployment and infrastructure**
 
-| Chapter | What you get |
-|---|---|
-| [databricks-asset-bundles](skills/databricks-asset-bundles/SKILL.md) | `databricks.yml`: targets and deployment modes, variable interpolation, resource types, Lakebase and its Data API, post-deploy runs, and the deploy-time traps. |
-| [develop-infrastructure](skills/develop-infrastructure/SKILL.md) | The Azure platform underneath: Bicep at subscription scope in four planes, Terraform for Unity Catalog, and the Azure DevOps pipelines that orchestrate both through a locked-down network. |
+- [databricks-asset-bundles](skills/databricks-asset-bundles/SKILL.md) — `databricks.yml`: targets and modes, variable interpolation, resource types, Lakebase, post-deploy runs, and the deploy-time traps.
+- [develop-infrastructure](skills/develop-infrastructure/SKILL.md) — the Azure platform underneath: Bicep in four planes, Terraform for Unity Catalog, and the Azure DevOps pipelines that orchestrate both.
 
 **Testing and practice**
 
-| Chapter | What you get |
-|---|---|
-| [test-python](skills/test-python/SKILL.md) | pytest layout, testing notebook modules that cannot be imported, a hardened local `SparkSession` fixture, wheel and bundle-validation tests. |
-| [test-workflows-github](skills/test-workflows-github/SKILL.md) | A GitHub Actions lint-and-test workflow, and how merges actually get gated. |
-| [test-workflows-devops](skills/test-workflows-devops/SKILL.md) | The Azure DevOps equivalent, including the Azure Repos `pr:` trigger trap. |
-| [document-decisions](skills/document-decisions/SKILL.md) | How to write down the constants and thresholds a system rests on, so "nobody knows why this is 0.8" stops being true. |
+- [test-python](skills/test-python/SKILL.md) — pytest layout, testing non-importable notebook modules, a hardened local `SparkSession` fixture, wheel and bundle-validation tests.
+- [test-workflows-github](skills/test-workflows-github/SKILL.md) — a GitHub Actions lint-and-test workflow, and how merges get gated.
+- [test-workflows-devops](skills/test-workflows-devops/SKILL.md) — the Azure DevOps equivalent, including the Azure Repos `pr:` trigger trap.
+- [document-decisions](skills/document-decisions/SKILL.md) — how to write down the constants and thresholds a system rests on.
 
-→ **[Full chapter index, with a reading order](skills/README.md)**
+Full chapter index, with a reading order: [skills/README.md](skills/README.md).
 
 ## Start here
 
@@ -131,15 +82,9 @@ description: 'Use when …'    # the discovery surface — concrete trigger keyw
 ---
 ```
 
-Every `SKILL.md` follows the same spine, which is what makes the handbook read as one book:
-
-| Section | What it gives you |
-|---|---|
-| Opening note | The subject, where the knowledge came from, and what it does **not** cover |
-| Detailed references | The deep material, one file per topic |
-| Rules | The handful of things that prevent most failures in this area |
-| Symptom → fix index | A lookup table for when something is already broken |
-| Commands · When to use · Related | The commands worth memorising, and where the boundaries are |
+Every `SKILL.md` follows the same spine: an opening note (subject, where the knowledge came from,
+what it does **not** cover), detailed references, the handful of rules that prevent most failures, a
+symptom → fix index, and the commands worth memorising.
 
 Reference files open with a **Source** note. Where a claim is inferred rather than observed it is
 tagged inline — `[repo]` confirmed in code, `[docs]` a vendor-documented constraint, `[deduced]` an
@@ -166,10 +111,9 @@ that root. A skill buried inside a nested repo (`code-repositories/some-repo/.ag
 **not** found when the workspace root is `code-repositories/` — that nesting trap is exactly why
 these skills live here.
 
-| Agent | Project-scope paths it scans (at a workspace root) | Personal/global path |
-|---|---|---|
-| GitHub Copilot (VS Code) | `.github/skills/`, `.agents/skills/`, `.claude/skills/` | `~/.copilot/skills/`, `~/.agents/skills/`, `~/.claude/skills/` |
-| Claude Code | `.claude/skills/` (documented) | `~/.claude/skills/` |
+- **GitHub Copilot (VS Code)** scans `.github/skills/`, `.agents/skills/` and `.claude/skills/` at a
+  workspace root (personal paths: `~/.copilot/skills/`, `~/.agents/skills/`, `~/.claude/skills/`).
+- **Claude Code** scans `.claude/skills/` (personal: `~/.claude/skills/`).
 
 > **Verified vs assumed.** Copilot's three project paths are documented. Whether Claude Code also
 > scans `.agents/skills/` (rather than only `.claude/skills/`) is **not confirmed** — don't rely on
@@ -207,22 +151,11 @@ mkdir .claude & mklink /J .claude\skills skills
 
 Verify with `ls -l .claude/skills` — it should show `skills -> ../skills`, or a junction on Windows.
 
-<details markdown="1">
-<summary><strong>Why this is manual rather than committed — the Windows trap</strong></summary>
-
-- **Git stores symlinks portably** (a blob with mode `120000`), but **checkout materialization is
-  OS-dependent.** On Windows a real symlink needs `SeCreateSymbolicLinkPrivilege` — Developer Mode
-  (Settings → Privacy & security → For developers) or an elevated shell — plus `core.symlinks=true`.
-  Without that, git writes a **plain text file containing the target path**, silently breaking it.
-- `core.symlinks` is *local* config and `.gitattributes` has no symlink setting, so the repo cannot
-  force correct materialization. That is why the symlink is neither committed nor automated — each
-  clone creates the form that works on its OS.
-- The target is **relative** (`../skills`), so moving the link to a different-depth folder breaks it.
-  Recreate it there rather than moving it.
-
-Lowest-friction alternative: skip the symlink and keep a second **real** `.claude/skills/` folder.
-
-</details>
+On Windows a real symlink needs Developer Mode (or an elevated shell) plus `core.symlinks=true`;
+without that git writes a plain text file of the target path and breaks it. `core.symlinks` is local
+config, so the repo can't force it — hence the per-clone step. The target is relative (`../skills`),
+so recreate (don't move) the link if it changes depth. Simplest alternative: skip the symlink and
+keep a second real `.claude/skills/` folder.
 
 ## The published handbook
 
@@ -236,12 +169,11 @@ One-time setup: **Settings → Pages → Source = "GitHub Actions"**.
 
 > ⚠️ **Confidentiality — read before going public.** GitHub Pages is **public** on public repos, and
 > on Free/Pro even when the repo is private. Skills carrying **internal** material are kept out of
-> this repo entirely via `.gitignore`, and dropped from the staged content in the Pages build as a
-> second guard, so they never reach the remote or the published site. Everything committed here is
+> the repo entirely via `.gitignore`, so they are never committed — and therefore never reach the
+> Actions checkout the Pages build runs from, nor the published site. Everything committed here is
 > generic, public-safe knowledge.
 
-<details markdown="1">
-<summary><strong>Local preview, and the link rules that keep both renderings working</strong></summary>
+### Local preview
 
 ```bash
 pip install zensical
@@ -254,80 +186,44 @@ cp AGENTS.md docs/contributing/index.md
 zensical serve
 ```
 
-`docs/` and `site/` are gitignored — neither Zensical nor MkDocs allows a `docs_dir` equal to the
-config file's own directory, so content is staged into a child `docs/`.
-
-Because staging copies `skills/` wholesale and this file becomes `docs/index.md`:
-
-- **Relative links into `skills/…` resolve in both renderings** — use them freely.
-- **`AGENTS.md` and `.github/*` move during staging**, so link them with absolute GitHub URLs
-  instead of relative paths.
-- Cross-skill links are `../<skill>/SKILL.md` from a `SKILL.md`, `../../<skill>/SKILL.md` from a
-  reference file. Those survive staging unchanged.
-- The build is **non-strict**, so a link into a sibling repo won't fail it — but it **404s on the
-  public site**. Keep public-facing skills self-contained.
-
-</details>
+`docs/`, `site/` and `dist/` are gitignored. Relative links into `skills/…` resolve in both the repo
+and the staged site; link `AGENTS.md` and `.github/*` with absolute GitHub URLs since they move
+during staging. The build is non-strict, so a sibling-repo link won't fail it but 404s on the public
+site — keep public-facing skills self-contained.
 
 ## This repo as a worked example
 
 It also demonstrates two GitHub automation patterns on itself.
 
-<details markdown="1">
-<summary><strong>Governing Copilot code review — applied to this repo's own pull requests</strong></summary>
+### Governing Copilot code review (on this repo's own PRs)
 
-GitHub's PR reviewer reads review customization from **the repository under review**, on the **head
-(PR) branch**, so these files take effect in the same PR that changes them:
+GitHub's PR reviewer reads review customization from the repository under review, on the head (PR)
+branch, so these files take effect in the same PR that changes them:
 
-| Layer | File | Role |
-|---|---|---|
-| Repo-wide | [`.github/copilot-instructions.md`](https://github.com/aleksandrskrivickis/.agents/blob/main/.github/copilot-instructions.md) | Always-on rules the reviewer applies to every PR here |
-| Path-specific | [`.github/instructions/skills.instructions.md`](https://github.com/aleksandrskrivickis/.agents/blob/main/.github/instructions/skills.instructions.md) (`applyTo: skills/**`) | Rules scoped to the skills; `excludeAgent` can target one agent |
-| Agent instructions | [`AGENTS.md`](https://github.com/aleksandrskrivickis/.agents/blob/main/AGENTS.md) | Cross-tool always-on rules; also consumed by review |
+- `.github/copilot-instructions.md` — repo-wide, always-on rules for every PR here.
+- `.github/instructions/skills.instructions.md` (`applyTo: skills/**`) — rules scoped to the skills.
+- `AGENTS.md` — cross-tool always-on rules, also consumed by review.
 
-Review is regulated with **instructions only**. A dedicated "code-review" skill is intentionally
-omitted — reviewing PRs is already Copilot code review's built-in job, and instructions are what
-shape *how* it reviews. Skills stay for on-demand authoring and analysis.
+Review is regulated with instructions only; a dedicated "code-review" skill is intentionally omitted
+(reviewing PRs is already Copilot's built-in job). GitHub reads these from the repo under review, so
+this shared repo can only self-review — copy the `.github/` files into another repo to govern review
+there. Turn review on under Settings → Copilot → Code review (or a branch ruleset).
 
-GitHub reads this customization from the repo under review, not from another repo's
-`.agents/skills`, so this shared repo can only self-review. To regulate review elsewhere, copy the
-same `.github/` instruction files into that repository.
+### Automated test generation (a copyable template)
 
-**Manual steps (settings, not files):** turn on automatic review under **Settings → Copilot → Code
-review** or via an organization/branch ruleset; pick a review effort level (Lite / Balanced / Max);
-note that full-context agentic review needs GitHub Actions runners, and falls back to a more limited
-mode with Actions disabled.
-
-</details>
-
-<details markdown="1">
-<summary><strong>Automated test generation (a copyable template)</strong></summary>
-
-- [`.github/instructions/tests.instructions.md`](https://github.com/aleksandrskrivickis/.agents/blob/main/.github/instructions/tests.instructions.md)
-  (`applyTo: src/**,tests/**`) tells the Copilot cloud agent **how** to generate tests — mirror
-  `src/` under `tests/unit/`, `test_<module>.py` naming that preserves hyphens and stage numbers,
-  mock external I/O, keep integration tests skippable.
-- `.github/workflows/tests.yml` runs them on push and PR as a GitHub Actions mirror of the Azure
-  DevOps pipeline (uv + advisory ruff + pytest + a JUnit artifact).
-
-It is a **template**: this repo is Markdown-only, so the workflow guards on `pyproject.toml` and
-no-ops here, staying green. Copy both files into a code repository — or widen the `applyTo` glob —
-to activate. The matching authoring guidance is in
+`.github/instructions/tests.instructions.md` (`applyTo: src/**,tests/**`) tells the Copilot cloud
+agent how to generate tests — mirror `src/` under `tests/unit/`, `test_<module>.py` naming, mock
+external I/O, keep integration tests skippable. `.github/workflows/tests.yml` runs them in CI (uv +
+ruff + pytest). This repo is Markdown-only, so the workflow guards on `pyproject.toml` and no-ops;
+copy both files into a code repository to activate. Authoring guidance:
 [test-python](skills/test-python/SKILL.md).
 
-</details>
+### Versioning and releases
 
-<details markdown="1">
-<summary><strong>Versioning and releases</strong></summary>
-
-The single `.github/workflows/publish.yml` run does it all: it derives the next patch version from
-the latest GitHub release, stages the docs, builds the site, zips the staged docs as
-`agent-skills-handbook-vX.Y.Z.zip`, publishes the release (tag `vX.Y.Z` + generated notes + the zip),
-then deploys the site to Pages. Nothing is hardcoded — the site **header** shows the latest release
-automatically (Zensical requests it from GitHub via `repo_url`). The `docs/`, `site/` and `dist/`
-build dirs are gitignored and never committed.
-
-</details>
+The `publish.yml` run derives the next patch version from the latest GitHub release, zips the
+handbook, publishes the release (tag + generated notes + zip), then deploys the site. Nothing is
+hardcoded — the site header shows the latest release automatically (fetched from GitHub via
+`repo_url`), so a version only appears once the first release exists.
 
 ## Contributing
 
@@ -347,9 +243,3 @@ matter most:
 
 Found a bug, or want to suggest a chapter?
 [**Open an issue**](https://github.com/aleksandrskrivickis/.agents/issues).
-
-## Maintainer
-
-Created and maintained by **Aleksandrs Krivickis** —
-[LinkedIn](https://www.linkedin.com/in/aleksandrskrivickis/).
-Licensed under [GPL-3.0](https://github.com/aleksandrskrivickis/.agents/blob/main/LICENSE).
