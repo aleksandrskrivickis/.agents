@@ -1,6 +1,6 @@
-# The agent skills handbook
-
 ![The agent skills handbook](https://m.media-amazon.com/images/M/MV5BMjEzODMzMzg1NF5BMl5BanBnXkFtZTYwNDE2NTE3._V1_.jpg)
+
+# The agent skills handbook
 
 Production-tested engineering knowledge, written so a coding agent and a human can read the same page.
 
