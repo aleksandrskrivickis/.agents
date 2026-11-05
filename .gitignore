@@ -5,3 +5,4 @@
 # Generated site build dirs (Pages workflow / local preview); never committed.
 /docs/
 /site/
+/dist/

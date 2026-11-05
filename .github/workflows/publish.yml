@@ -1,0 +1,95 @@
+name: Publish
+run-name: Version, release and deploy the handbook
+
+# One flow per push to main: compute the next version from the latest GitHub release, stage the
+# docs, build the Zensical site, zip the staged docs for the release, publish the release, then
+# deploy the site to Pages. The site header shows the latest release automatically (via repo_url),
+# so no version is hardcoded. docs/, site/ and dist/ are build-only and gitignored — never committed.
+# Prerequisite: Settings → Pages → Source = "GitHub Actions".
+on:
+    push:
+        branches: [main]
+        paths:
+            - "skills/**"
+            - "README.md"
+            - "AGENTS.md"
+            - "mkdocs.yml"
+            - ".github/copilot-instructions.md"
+            - ".github/instructions/**"
+            - ".github/workflows/publish.yml"
+    workflow_dispatch:
+
+permissions:
+    contents: write # create the release
+    pages: write
+    id-token: write
+
+# Serialised: a newer push queues behind the running one, so two runs can't compute the same version.
+concurrency:
+    group: pages
+    cancel-in-progress: false
+
+jobs:
+    publish:
+        environment:
+            name: github-pages
+            url: ${{ steps.deployment.outputs.page_url }}
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: actions/setup-python@v5
+              with:
+                  python-version: "3.12"
+            - name: Install Zensical
+              run: pip install zensical
+
+            - name: Compute the next version from the latest release
+              id: version
+              env:
+                  GH_TOKEN: ${{ github.token }}
+              run: |
+                  set -euo pipefail
+                  latest="$(gh release view --json tagName -q .tagName 2>/dev/null || true)"
+                  if [ -z "$latest" ]; then
+                      version="0.1.0"
+                  else
+                      IFS=. read -r major minor patch <<< "${latest#v}"
+                      version="$major.$minor.$((patch + 1))"
+                  fi
+                  echo "version=$version" >> "$GITHUB_OUTPUT"
+
+            # Stage content into a child docs/ dir — Zensical (like MkDocs) can't use docs_dir ".".
+            # README.md becomes the site index.
+            - name: Stage docs
+              run: |
+                  mkdir -p docs docs/github/instructions docs/contributing
+                  cp -R skills docs/skills
+                  cp README.md docs/index.md
+                  cp .github/copilot-instructions.md docs/github/
+                  cp .github/instructions/*.md docs/github/instructions/
+                  cp AGENTS.md docs/contributing/index.md
+
+            - name: Build the site
+              run: zensical build --clean
+
+            - name: Zip the staged docs for the release
+              run: |
+                  mkdir -p dist
+                  zip -qr "dist/agent-skills-handbook-${{ steps.version.outputs.version }}.zip" docs
+
+            - name: Publish the release
+              env:
+                  GH_TOKEN: ${{ github.token }}
+              run: |
+                  gh release create "v${{ steps.version.outputs.version }}" \
+                    "dist/agent-skills-handbook-${{ steps.version.outputs.version }}.zip" \
+                    --target "$GITHUB_SHA" \
+                    --generate-notes
+
+            - uses: actions/configure-pages@v5
+            - uses: actions/upload-pages-artifact@v3
+              with:
+                  path: site
+            - name: Deploy to GitHub Pages
+              id: deployment
+              uses: actions/deploy-pages@v4
