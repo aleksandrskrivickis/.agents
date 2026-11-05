@@ -18,6 +18,8 @@ site_dir: site
 theme:
     name: material
     variant: modern
+    logo: assets/logo.svg
+    favicon: assets/logo.svg
     font:
         text: Inter
         code: JetBrains Mono

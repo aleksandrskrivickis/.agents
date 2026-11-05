@@ -11,6 +11,7 @@ on:
         branches: [main]
         paths:
             - "skills/**"
+            - "assets/**"
             - "README.md"
             - "AGENTS.md"
             - "mkdocs.yml"
@@ -63,6 +64,7 @@ jobs:
             - name: Stage docs
               run: |
                   mkdir -p docs docs/github/instructions docs/contributing
+                  cp -R assets docs/assets
                   cp -R skills docs/skills
                   cp README.md docs/index.md
                   cp .github/copilot-instructions.md docs/github/

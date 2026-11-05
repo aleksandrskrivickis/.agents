@@ -1,5 +1,7 @@
 # The agent skills handbook
 
+![The agent skills handbook](https://m.media-amazon.com/images/M/MV5BMjEzODMzMzg1NF5BMl5BanBnXkFtZTYwNDE2NTE3._V1_.jpg)
+
 Production-tested engineering knowledge, written so a coding agent and a human can read the same page.
 
 Nine chapters on building data platforms on Databricks and Azure — what breaks, why it breaks, and
@@ -178,6 +180,7 @@ One-time setup: **Settings → Pages → Source = "GitHub Actions"**.
 ```bash
 pip install zensical
 rm -rf docs site && mkdir -p docs docs/github/instructions docs/contributing
+cp -R assets docs/assets
 cp -R skills docs/skills
 cp README.md docs/index.md
 cp .github/copilot-instructions.md docs/github/

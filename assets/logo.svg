@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="The agent skills handbook">
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="128" y2="128" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6366F1"/>
+      <stop offset="1" stop-color="#7C3AED"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="30" fill="url(#tile)"/>
+  <path d="M64 49.5C52.7 42 37.4 41 25.3 45.1A4.5 4.5 0 0 0 22.3 49.4V80.2A4.5 4.5 0 0 0 27.8 84.6C38.4 81.9 50.4 83 59.7 89.2A7 7 0 0 0 68.3 89.2C77.6 83 89.6 81.9 100.2 84.6A4.5 4.5 0 0 0 105.7 80.2V49.4A4.5 4.5 0 0 0 102.7 45.1C90.6 41 75.3 42 64 49.5Z" fill="#ffffff" opacity="0.96"/>
+  <path d="M64 50.5V88.5" stroke="#6D28D9" stroke-width="3" stroke-linecap="round" opacity="0.30"/>
+  <path d="M33 57.5C40.5 55.7 48.8 56.5 55.5 60M33 67C40.5 65.2 48.8 66 55.5 69.5" stroke="#6D28D9" stroke-width="2.6" stroke-linecap="round" fill="none" opacity="0.22"/>
+  <path d="M95 57.5C87.5 55.7 79.2 56.5 72.5 60M95 67C87.5 65.2 79.2 66 72.5 69.5" stroke="#6D28D9" stroke-width="2.6" stroke-linecap="round" fill="none" opacity="0.22"/>
+  <path d="M96.5 26L99.2 32.3L105.5 35L99.2 37.7L96.5 44L93.8 37.7L87.5 35L93.8 32.3Z" fill="#ffffff"/>
+</svg>
