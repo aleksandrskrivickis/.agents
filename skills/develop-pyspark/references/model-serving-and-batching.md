@@ -1,5 +1,9 @@
 # Calling a model-serving endpoint from Spark
 
+> **Source.** `[repo]` — distilled from a production Databricks Spark Declarative Pipeline
+> and its accumulated fixes. `[docs]` marks a vendor-documented constraint; `[deduced]` an
+> inference.
+
 Pattern for embedding/scoring slices through a Databricks model-serving endpoint inside a
 `mapInPandas` UDF — tuned for throughput without tripping the endpoint's concurrency and
 request-size limits.

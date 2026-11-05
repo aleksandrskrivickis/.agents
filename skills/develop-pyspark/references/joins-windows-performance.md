@@ -1,5 +1,9 @@
 # Joins, windows, and performance
 
+> **Source.** `[repo]` — distilled from a production Databricks Spark Declarative Pipeline
+> and its accumulated fixes. `[docs]` marks a vendor-documented constraint; `[deduced]` an
+> inference.
+
 ## Prune the big side before the shuffle
 
 Broadcast the small key set and semi-join to drop rows that can't match, so only relevant data is
@@ -21,6 +25,13 @@ candidates = big.join(
 
 When one key (or one jurisdiction) dominates, hashing into shards spreads the work; replicate the
 small side across all shards so correctness is preserved:
+
+> **This is a memory fix as much as a latency fix.** `cogroup(...).applyInPandas` hands **one Python
+> worker an entire group as pandas** — both sides of it. A dominant key therefore does not merely run
+> slowly, it OOMs the worker, and no Arrow batch cap helps because the group is the unit. Sharding
+> the group key is what bounds what a worker holds. In the source project a data-quality stage was
+> sharded for exactly this reason, after the OOM rather than before it. Size `N_SHARDS` from the
+> largest group, not the mean.
 
 ```python
 shard = F.pmod(F.hash(F.col("candidate")), F.lit(N_SHARDS))
@@ -51,12 +62,12 @@ shard (the global winner is the `struct`-max above). Import the heavy lib **insi
 it ships to executors with the UDF, not the driver:
 
 ```python
-def best_in_shard(inventory_pdf, lawstronaut_pdf):  # cogroup -> (left, right) per key
+def best_in_shard(inventory_pdf, vendor_pdf):  # cogroup -> (left, right) per key
     from rapidfuzz import fuzz, process
 
     if inventory_pdf.empty:
         return pd.DataFrame(columns=COLS)
-    choices = lawstronaut_pdf["lawstronaut_title"].tolist()
+    choices = vendor_pdf["vendor_title"].tolist()
     rows = []
     for r in inventory_pdf.itertuples(index=False):
         best_title, best_score = None, 0.0

@@ -1,5 +1,9 @@
 # Stateful streaming, flows, and checkpoints
 
+> **Source.** `[repo]` — distilled from a production Databricks Spark Declarative Pipeline
+> and its accumulated fixes. `[docs]` marks a vendor-documented constraint; `[deduced]` an
+> inference.
+
 ## `applyInPandasWithState` for cross-microbatch pairing
 
 Use it to carry state between micro-batches (e.g. pair each document version with its predecessor

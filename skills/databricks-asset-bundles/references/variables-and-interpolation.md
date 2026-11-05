@@ -1,5 +1,8 @@
 # Variables & interpolation
 
+> **Source.** `[repo]` — distilled from a production Lakeflow bundle and the deploy failures it
+> hit. `[docs]` marks documented Databricks CLI/bundle behaviour; `[deduced]` an inference.
+
 ## Declaring variables
 
 ```yaml

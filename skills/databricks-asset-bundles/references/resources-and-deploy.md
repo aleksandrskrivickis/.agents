@@ -1,5 +1,8 @@
 # Resources, post-deploy & deploy
 
+> **Source.** `[repo]` — distilled from a production Lakeflow bundle and the deploy failures it
+> hit. `[docs]` marks documented Databricks CLI/bundle behaviour; `[deduced]` an inference.
+
 ## Resource types & key uniqueness
 
 Under `resources:` (globally in `resources/*.yml`, or inline under `targets.<t>.resources`):
@@ -75,6 +78,10 @@ resources:
 - A notebook task with **no cluster** runs on **serverless** (a common repo convention).
 
 ## Lakebase / Postgres synced tables (bin-packing)
+
+> The project and branch these tables live in, and the **Data API** that serves them over HTTP, are
+> covered in [lakebase-and-data-api.md](./lakebase-and-data-api.md) — including the trap that a role
+> created via `postgres_roles` cannot be granted to `authenticator`.
 
 ```yaml
 resources:

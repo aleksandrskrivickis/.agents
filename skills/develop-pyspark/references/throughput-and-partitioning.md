@@ -1,5 +1,9 @@
 # Regulating throughput: upstream partitioning + `maxFilesPerTrigger`
 
+> **Source.** `[repo]` — distilled from a production Databricks Spark Declarative Pipeline
+> and its accumulated fixes. `[docs]` marks a vendor-documented constraint; `[deduced]` an
+> inference.
+
 Throughput in a streaming SDP pipeline is set by **three independent knobs**. Confusing them is the
 usual cause of "too slow", "OOM", or "one task does everything":
 

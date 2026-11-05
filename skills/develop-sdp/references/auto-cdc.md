@@ -1,11 +1,15 @@
 # AUTO CDC (change data capture)
 
+> **Source.** `[docs]` for the API surface and documented behaviour (Apache Spark + Databricks
+> Lakeflow documentation); `[repo]` for what a production pipeline actually used and hit.
+> `[deduced]` marks an inference.
+
 `AUTO CDC` and `AUTO CDC FROM SNAPSHOT` automate slowly-changing-dimension (SCD) Type 1/2 upkeep of
 a target streaming table from a change feed or from snapshots. They **replace the `APPLY CHANGES`
 APIs** and share the same syntax — `APPLY CHANGES` still works, but Databricks recommends AUTO CDC.
 
 > **Lakeflow-only.** The AUTO CDC APIs are **not** part of Apache Spark Declarative Pipelines. They
-> require serverless Lakeflow pipelines or the `Pro`/`Advanced` editions. This repo does not
+> require serverless Lakeflow pipelines or the `Pro`/`Advanced` editions. The source project does not
 > currently use CDC (it does custom version pairing via `applyInPandasWithState` in stage 02-01),
 > but this is the API to reach for if/when CDC is adopted.
 

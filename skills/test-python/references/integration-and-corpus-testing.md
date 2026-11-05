@@ -1,5 +1,8 @@
 # Integration & golden-corpus testing
 
+> **Source.** `[repo]` — from a production Databricks project's test suite. `[deduced]` marks
+> generalisation advice the suite does not itself state.
+
 Patterns for tests that touch real infrastructure or score a fixture corpus, beyond the fast
 pure-Python unit tests in the main skill. All three keep the default `uv run pytest` run **green for
 contributors who lack the backing service** — the missing dependency *skips*, and CI is the gate.

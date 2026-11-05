@@ -1,14 +1,18 @@
 # Bundles, the Pipelines Editor, publishing modes & event log
 
+> **Source.** `[docs]` for the API surface and documented behaviour (Apache Spark + Databricks
+> Lakeflow documentation); `[repo]` for what a production pipeline actually used and hit.
+> `[deduced]` marks an inference.
+
 ## Declarative Automation Bundles (formerly Databricks Asset Bundles / DAB)
 
 Bundles are the infrastructure-as-code wrapper that defines a Databricks project (jobs, pipelines,
 dashboards, model-serving endpoints, MLflow experiments/models) as YAML alongside source, deployed
 with the Databricks CLI. **The product was renamed from "Databricks Asset Bundles" to "Declarative
 Automation Bundles"** (docs, Sep 2026); the `databricks.yml` file and `databricks bundle` CLI are
-unchanged, so this repo's "DAB" naming still works — it's cosmetic.
+unchanged, so existing "DAB" naming still reads correctly — the rename is cosmetic.
 
-- Defined in `databricks.yml` + resource files (this repo: `resources/pipelines.yml`,
+- Defined in `databricks.yml` + resource files (for example `resources/pipelines.yml`,
   `resources/jobs.yml`). Deploy with `databricks bundle validate` / `deploy` / `run`.
 - CLI **v0.218.0+** required for bundles; Databricks recommends staying current. You can also
   create/deploy bundles entirely in the workspace UI without installing the CLI.
@@ -39,15 +43,18 @@ The IDE for pipeline development (files, not notebooks). Relevant facts:
 ## Publishing mode (do not use `LIVE.`)
 
 New pipelines use the **default publishing mode**: unqualified names resolve to the pipeline's
-configured catalog/schema, which is exactly how this repo reads tables
+configured catalog/schema, which is how a pipeline on default publishing reads tables
 (`spark.read.table("contents")`). The old `LIVE.` virtual schema is **legacy and deprecated**
 (silently ignored in default mode, removal planned) — do not introduce it in new code.
 
 ## Event log
 
 Query the pipeline event log via `spark.read.table("event_log")` (Lakeflow; not Apache SDP). New
-pipelines publish it to the pipeline's configured catalog/schema; the repo flattens it in stage
-`04-00-event-log-flat.py`.
+pipelines publish it to the pipeline's configured catalog/schema.
+
+> Full treatment — the schema, the aggregation rules that stop you over-counting failures, publishing
+> vs the table-valued function, and where `print()` output actually goes on serverless — is in
+> [event-log-and-observability.md](./event-log-and-observability.md).
 
 ## Pipeline concepts recap
 
@@ -65,4 +72,5 @@ pipelines publish it to the pipeline's configured catalog/schema; the repo flatt
 - Databricks — LIVE virtual schema / publishing: <https://docs.databricks.com/aws/en/ldp/live-schema>
 
 > For bundle depth — targets & modes, variables/interpolation, resource types, `job_runs`,
-> synced-table bin-packing, and deploy gotchas — see the dedicated **databricks-asset-bundles** skill.
+> synced-table bin-packing, and deploy gotchas — see
+> [databricks-asset-bundles](../../databricks-asset-bundles/SKILL.md).

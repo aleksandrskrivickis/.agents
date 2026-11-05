@@ -1,5 +1,9 @@
 # Custom `FileFormat` DataSource in Scala
 
+> **Source.** `[repo]` — from a custom Apache Tika Spark DataSource (Scala), including the
+> registration bug it shipped with. `[docs]` marks documented Spark behaviour; `[deduced]` an
+> inference. These are Spark *internal* APIs — verify against your pinned Spark version.
+
 How to make Spark read a format it doesn't natively support (here: any document, via Apache Tika), so
 `spark.read.format("mysource").load(path)` yields a DataFrame with a fixed schema.
 

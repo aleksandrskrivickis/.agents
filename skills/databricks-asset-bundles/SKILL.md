@@ -5,17 +5,23 @@ description: 'Use when working with Databricks Asset Bundles (DAB) — the datab
 
 # Databricks Asset Bundles (DAB)
 
-A **bundle** is an infrastructure-as-code project for Databricks: a root `databricks.yml` plus
-`resources/*.yml`, deployed with the Databricks CLI (`databricks bundle deploy/run/validate`). It
-packages pipelines, jobs, model-serving endpoints, Lakebase/Postgres resources, permissions and
-workspace layout, parameterised per **target** (dev / staging / prod). Distilled from a production
-SDP (Lakeflow) bundle.
+> **What this is.** A **bundle** is an infrastructure-as-code project for Databricks: a root
+> `databricks.yml` plus `resources/*.yml`, deployed with the Databricks CLI
+> (`databricks bundle deploy/run/validate`). It packages pipelines, jobs, model-serving endpoints,
+> Lakebase/Postgres resources, permissions and workspace layout, parameterised per **target**
+> (dev / staging / prod).
+>
+> Distilled from a production Lakeflow bundle and its deploy failures. The product was renamed to
+> *Declarative Automation Bundles*, but the `databricks.yml` file and the `databricks bundle` CLI are
+> unchanged, so "DAB" still reads correctly — see [develop-sdp](../develop-sdp/SKILL.md) for the
+> naming timeline.
 
-Detailed references:
+## Detailed references
 
-- [references/targets-and-modes.md](./references/targets-and-modes.md) — targets, `mode: development` vs `production`, name prefixing & `normalizePrefix`, presets, per-target `workspace`/`permissions`/`resources`, `include` scoping.
+- [references/targets-and-modes.md](./references/targets-and-modes.md) — targets, `mode: development` vs `production`, name prefixing & `normalizePrefix`, presets, per-target `workspace`/`permissions`/`resources`, `include` scoping, the per-user-sandbox trap, and an admin-only target for shared infrastructure.
 - [references/variables-and-interpolation.md](./references/variables-and-interpolation.md) — `variables:`, required vars, `${var.*}` / `${bundle.*}` / `${workspace.*}` / `${resources.*.status.*}`, what can't be interpolated, map deep-merge vs array replace.
 - [references/resources-and-deploy.md](./references/resources-and-deploy.md) — resource types & key uniqueness, pipeline `configuration`/`environment`, `job_runs` post-deploy, synced-table bin-packing, the wheel artifact, and the deploy/validate/run commands.
+- [references/lakebase-and-data-api.md](./references/lakebase-and-data-api.md) — `postgres_projects` and `postgres_branches` field by field, enabling the PostgREST-style Data API, the role/`authenticator` grant trap, and where the declarative surface stops and a script takes over.
 
 ## Minimal shape
 
@@ -77,6 +83,24 @@ targets:
    → schema `..._fiat-individual` (an awkward UC identifier); hardcode the schema for such targets.
 7. **Never deploy to a shared/prod target without explicit instruction**, and keep bundle *tests*
    read-only (`bundle validate`) — never auto-deploy, even behind a flag.
+8. **A default that production does not override reaches production.** A variable defaulted to a
+   convenient development value — a personal schema, a sample size, a test table — is live in every
+   target that stays silent about it. In the source project a production data-quality stage read one
+   named individual's personal development schema, because `prod` never overrode the default and
+   nothing made the dependency visible from `prod`'s own configuration. Either give risky variables
+   **no default** (so a target must state one) or override them explicitly in every target.
+9. **Configuration set only in `dev` leaves every other target on an unrecorded platform default.**
+   Retry counts, flow retries, idle shutdown, row caps: if they appear under one target, nobody can
+   state what the others do. Set them everywhere, even to the same value as the default.
+10. **A schedule is a latency decision.** `pause_status`, the cron, and `max_retries: 0` together
+    determine how long a change can go undetected — a weekly cron with no retries means one transient
+    failure costs a full week. Write the acceptable latency down somewhere the cron can be checked
+    against. Note that `max_concurrent_runs: 2` is needed if a task in the job pauses the job's own
+    schedule.
+11. **Some Lakebase objects cannot be declared at all.** The Data API and its Postgres roles are
+    imperative: a role created via the `postgres_roles` resource **cannot be granted to
+    `authenticator`**, so it must be created in-database by a script. Put that script behind a
+    `job_runs` post-deploy hook rather than running it by hand.
 
 ## Quick symptom → fix index
 
@@ -90,6 +114,13 @@ targets:
 | `field data_synchronization_status not found` | use `...status.pipeline_id` for autoscaling synced tables | resources-and-deploy |
 | Post-deploy run needed | `job_runs` resource (CLI ≥ 1.7.0 + direct engine); `scripts` are manual only | resources-and-deploy |
 | "required variable" never raised | a no-default var is enforced only when the selected target references it | variables-and-interpolation |
+| Production reads a developer's schema | a variable default no target overrode | targets-and-modes |
+| A "shared, near-production" target behaves per-user | it carries `mode: development` | targets-and-modes |
+| Endpoint exists in one environment, missing in another | it is workspace-global and only one target declares it | targets-and-modes |
+| Synced table deployed before its Lakebase branch | branches are referenced by literal path — no bundle ordering | lakebase-and-data-api |
+| Data API returns 403 for a granted principal | role not granted `TO authenticator`, or created via `postgres_roles` | lakebase-and-data-api |
+| Data API 403 only on newly added tables | `GRANT … ON ALL TABLES` is a snapshot; re-run or set default privileges | lakebase-and-data-api |
+| New schema invisible over the Data API | it is not in the Data API's `db_schemas` list | lakebase-and-data-api |
 
 ## Commands
 
@@ -109,6 +140,20 @@ databricks bundle run <job-or-pipeline-key> -t <target>
 
 - Editing `databricks.yml` or `resources/*.yml`; adding a target, variable, or resource.
 - Choosing dev vs prod mode, debugging name prefixing, or per-target resource overrides.
-- Wiring post-deploy automation (`job_runs`), Lakebase synced tables, or the wheel artifact.
-- For the **pipeline body** (the `dp` API, expectations, AUTO CDC), use the **develop-sdp** skill;
-  this skill is the *bundle/deploy* layer around it.
+- Wiring post-deploy automation (`job_runs`), Lakebase projects/branches/synced tables, the Data
+  API, or the wheel artifact.
+- Auditing deployment defaults — schedules, retries, row caps — for values that only exist in one
+  target.
+
+## Related skills
+
+- [develop-sdp](../develop-sdp/SKILL.md) — the **pipeline body** this bundle deploys: the `dp` API,
+  expectations, the event log, refresh semantics. This skill is the deploy layer around it.
+- [develop-pyspark](../develop-pyspark/SKILL.md) — and
+  [model registration](../develop-pyspark/references/model-registration-and-endpoints.md) for the
+  serving endpoints a bundle declares.
+- [develop-infrastructure](../develop-infrastructure/SKILL.md) — the Azure platform the workspace,
+  storage and Unity Catalog live on, underneath the bundle.
+- [test-python](../test-python/SKILL.md) — bundle validation and wheel-build tests.
+- [document-decisions](../document-decisions/SKILL.md) — for the schedules, retry counts and
+  per-target limits rules 8–10 keep telling you to write a reason for.

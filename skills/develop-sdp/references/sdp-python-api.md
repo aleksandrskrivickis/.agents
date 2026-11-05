@@ -1,8 +1,12 @@
 # SDP / Lakeflow Python API (`pyspark.pipelines`)
 
+> **Source.** `[docs]` for the API surface and documented behaviour (Apache Spark + Databricks
+> Lakeflow documentation); `[repo]` for what a production pipeline actually used and hit.
+> `[deduced]` marks an inference.
+
 Reference for the Python pipeline API, from the Spark Declarative Pipelines Programming Guide and
 the Lakeflow pipelines Python reference (both current as of Oct 2026; SDP ships in Apache Spark
-since **4.1**, this repo pins `pyspark[pipelines]==4.1.2`).
+since **4.1**; pin it, e.g. `pyspark[pipelines]==4.1.2`).
 
 ## Import and session
 
@@ -99,7 +103,7 @@ Reference other pipeline tables by bare name (`spark.table("orders")` /
 ## CLI note
 
 The Apache `spark-pipelines` CLI (`init`/`run`/`dry-run`, `spark-pipeline.yml` spec) is **not used
-by this repo** — on Databricks you deploy via bundles and iterate in the Lakeflow Pipelines Editor.
+on Databricks** — there you deploy via bundles and iterate in the Lakeflow Pipelines Editor.
 See [bundles-editor-publishing.md](./bundles-editor-publishing.md).
 
 ## Sources

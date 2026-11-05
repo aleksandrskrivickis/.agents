@@ -1,5 +1,9 @@
 # Pandas UDFs (`mapInPandas` / `applyInPandas`) and memory
 
+> **Source.** `[repo]` — distilled from a production Databricks Spark Declarative Pipeline
+> and its accumulated fixes. `[docs]` marks a vendor-documented constraint; `[deduced]` an
+> inference.
+
 ## Arrow batch sizing is the primary OOM control
 
 A pandas UDF receives Arrow record batches as pandas DataFrames. The executor holds
@@ -63,7 +67,7 @@ them — the UDF runs on executors where `dbutils`/`spark.conf` are unavailable.
 
 ```python
 EMAIL = dbutils.secrets.get(SCOPE, KEY)  # driver only
-BASE_URL = spark.conf.get("lawstronaut_base_url")  # driver only
+BASE_URL = spark.conf.get("vendor_base_url")  # driver only
 
 
 def fetch_partition(iterator):

@@ -5,8 +5,13 @@ description: 'Use when building a GitHub Actions pipeline to run Python tests. C
 
 # GitHub Actions: Python test pipeline
 
-Pattern for a GitHub Actions workflow that lints (advisory) and runs pytest with `uv`, mirroring the
-`databricks-web-scraping` test CI. Pairs with the **`test-python`** skill (how to write the tests).
+> **What this is.** A working GitHub Actions workflow that lints (advisory) and runs pytest with
+> `uv`, taken from a production Databricks pipeline repository. It pairs with
+> [test-python](../test-python/SKILL.md), which covers how to write the tests this runs.
+>
+> The two things worth reading even if you have a workflow already: **a `pull_request` trigger does
+> not gate a merge** (see Notes), and **advisory lint is a deliberate transitional state**, not an
+> oversight.
 
 ## Skeleton
 
@@ -63,5 +68,24 @@ jobs:
 - **uv install:** the `curl` installer mirrors the DevOps pipeline; `astral-sh/setup-uv` is a
   first-class alternative that adds caching.
 - **JVM-dependent integration tests:** provision a JDK (`actions/setup-java`) or let them skip (see
-  the `test-python` harness reference).
-- The Azure DevOps equivalent is the **`test-workflows-devops`** skill.
+  [the harness reference](../test-python/references/notebook-harness.md)).
+- **Credentialled tests stay opt-in.** Anything needing a cloud login — bundle validation, a remote
+  Spark session — should run in a separate job gated on secrets being present, so a fork's pull
+  request still gets the fast suite instead of a wall of red:
+  ```yaml
+  validate-bundle:
+    if: github.event_name == 'push'      # or: secrets are available
+    steps:
+      - run: uv run pytest tests/unit/bundle --validate-bundle --bundle-target dev
+  ```
+- **Never run a deploy from CI by default.** Validation only. See
+  [bundle-and-wheel-tests](../test-python/references/bundle-and-wheel-tests.md).
+
+## Related skills
+
+- [test-python](../test-python/SKILL.md) — how to write the tests this workflow runs, and the
+  `pyproject.toml` configuration it relies on.
+- [test-workflows-devops](../test-workflows-devops/SKILL.md) — the Azure DevOps equivalent, with a
+  significant trigger difference.
+- [databricks-asset-bundles](../databricks-asset-bundles/SKILL.md) — what `bundle validate` checks,
+  if you add the credentialled job.

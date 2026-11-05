@@ -1,5 +1,9 @@
 # File & document ingestion into Spark
 
+> **Source.** `[repo]` — distilled from a production Databricks Spark Declarative Pipeline
+> and its accumulated fixes. `[docs]` marks a vendor-documented constraint; `[deduced]` an
+> inference.
+
 Patterns for getting **binary files / documents** (PDF, Office, HTML, images) into a DataFrame and
 extracting text — distilled from a DLT document-ingestion framework. Complements the API-ingestion
 patterns in reliable-api-calls.

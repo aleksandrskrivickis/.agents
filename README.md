@@ -11,13 +11,16 @@ them with you.
 .agents/
 ├── mkdocs.yml                        # GitHub Pages site config (MkDocs Material)
 ├── skills/                           # all skills live here, centralised
-│   ├── develop-sdp/             # Spark Declarative Pipelines (SDP) + Databricks/Lakeflow extensions
-│   ├── develop-pyspark/         # PySpark on Databricks: memory, serving, stateful, joins, throughput, envelope, file ingestion
+│   ├── README.md                # the handbook's Skills landing page (chapter list, reading order)
+│   ├── develop-sdp/             # Spark Declarative Pipelines: API, expectations policy, event log, refresh & triage
+│   ├── develop-pyspark/         # PySpark on Databricks: memory, Arrow failures, serving, chunking, stateful, joins, throughput
 │   ├── develop-scala/           # Scala on Spark: custom FileFormat DataSource, UnsafeRow, Maven shade, ScalaTest
-│   ├── databricks-asset-bundles/ # Databricks Asset Bundles (databricks.yml): targets/modes, variables, resources, deploy
-│   ├── test-python/             # Python test authoring (pytest layout, mocking, harness)
+│   ├── databricks-asset-bundles/ # databricks.yml: targets/modes, variables, resources, Lakebase + Data API, deploy
+│   ├── develop-infrastructure/  # Azure platform IaC: Bicep planes, Terraform Unity Catalog, DevOps pipelines
+│   ├── test-python/             # Python test authoring (pytest layout, notebook harness, wheel/bundle tests)
 │   ├── test-workflows-github/   # GitHub Actions test pipeline pattern
-│   └── test-workflows-devops/   # Azure DevOps test pipeline pattern
+│   ├── test-workflows-devops/   # Azure DevOps test pipeline pattern
+│   └── document-decisions/      # recording engineering decisions: decision register + findings log
 └── .github/
     ├── copilot-instructions.md       # repo-wide rules Copilot code review applies to PRs here
     ├── instructions/

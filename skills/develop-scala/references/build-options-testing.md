@@ -1,5 +1,9 @@
 # Options, scoped config, build & testing (Scala Spark)
 
+> **Source.** `[repo]` — from a custom Apache Tika Spark DataSource (Scala), including the
+> registration bug it shipped with. `[docs]` marks documented Spark behaviour; `[deduced]` an
+> inference. These are Spark *internal* APIs — verify against your pinned Spark version.
+
 ## Typed DataSource options with defaults
 
 DataSource options arrive as `Map[String, String]`. Parse to typed values with a default and turn a

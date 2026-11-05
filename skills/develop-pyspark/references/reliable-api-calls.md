@@ -1,8 +1,12 @@
 # Reliable API calls inside a Spark pipeline
 
+> **Source.** `[repo]` — distilled from a production Databricks Spark Declarative Pipeline
+> and its accumulated fixes. `[docs]` marks a vendor-documented constraint; `[deduced]` an
+> inference.
+
 How to call an external HTTP API from a distributed Spark job so that a single failing call **never
 aborts the run**, every outcome is **recorded and queryable**, and connections survive the executor
-environment. Modeled on `LawstronautClient` and its model-serving sibling.
+environment. Modeled on a production vendor-API client and its model-serving sibling.
 
 ## The non-raising contract
 

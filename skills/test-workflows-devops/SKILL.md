@@ -5,8 +5,14 @@ description: 'Use when building an Azure DevOps (azure-pipelines.yml) pipeline t
 
 # Azure DevOps: Python test pipeline
 
-Pattern for an Azure Pipelines YAML that lints (advisory) and runs pytest with `uv`, mirroring the
-`databricks-web-scraping` test CI. Pairs with the **`test-python`** skill (how to write the tests).
+> **What this is.** A working Azure Pipelines YAML that lints (advisory) and runs pytest with `uv`,
+> taken from a production Databricks pipeline repository. It pairs with
+> [test-python](../test-python/SKILL.md), which covers how to write the tests this runs.
+>
+> **Read the caveat section even if you have a pipeline already.** On Azure Repos Git a `pr:`
+> trigger in YAML is silently ignored — pull-request validation is a *branch policy*, configured
+> outside the file. This surprises everyone arriving from GitHub Actions, and it means a pipeline
+> that looks like it gates merges may not.
 
 ## Skeleton
 
@@ -63,7 +69,34 @@ az repos policy build create \
 ## Notes
 
 - `PublishTestResults@2` renders the JUnit report in the run summary. The GitHub Actions equivalent
-  is an artifact upload or a reporter action — see **`test-workflows-github`**.
-- Keep ruff `continueOnError: true` while the tree has pre-existing findings; drop it to gate.
-- JVM-dependent integration tests: install a JDK or let them skip (see the `test-python` harness
-  reference).
+  is an artifact upload or a reporter action — see
+  [test-workflows-github](../test-workflows-github/SKILL.md).
+- **`failTaskOnFailedTests: true` on the publish step is what fails the build.** The pytest step's
+  own exit code also fails it, but when you make pytest advisory during a migration this is the lever
+  that keeps results visible while still gating.
+- Keep ruff `continueOnError: true` while the tree has pre-existing findings; drop it to gate. Say
+  *in a comment* how many findings remain, so "advisory" reads as a tracked state rather than a
+  permanent one.
+- JVM-dependent integration tests: install a JDK or let them skip (see
+  [the harness reference](../test-python/references/notebook-harness.md)).
+- **Credentialled tests belong in their own stage**, gated on branch or on a variable group being
+  available, so an ordinary pull-request validation run stays fast and credential-free:
+  ```yaml
+  - script: uv run pytest tests/unit/bundle --validate-bundle --bundle-target dev
+    displayName: Bundle validation
+    condition: eq(variables['Build.SourceBranchName'], 'main')
+  ```
+- **Never run a deploy from CI.** Validation only — see
+  [bundle-and-wheel-tests](../test-python/references/bundle-and-wheel-tests.md).
+- If the repository has a separate deployment pipeline, keep lint and tests in **one** file rather
+  than two. A split invites the state where the test pipeline is registered and the deploy pipeline
+  is the one with the branch policy attached.
+
+## Related skills
+
+- [test-python](../test-python/SKILL.md) — how to write the tests this pipeline runs, and the
+  `pyproject.toml` configuration it relies on.
+- [test-workflows-github](../test-workflows-github/SKILL.md) — the GitHub Actions equivalent.
+- [databricks-asset-bundles](../databricks-asset-bundles/SKILL.md) — what `bundle validate` checks.
+- [develop-infrastructure](../develop-infrastructure/SKILL.md) — a much larger Azure DevOps pipeline
+  set (preflight, approvals, locks, Terraform, PSRule) if you need more than lint-and-test.
