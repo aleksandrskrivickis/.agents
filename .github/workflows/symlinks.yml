@@ -1,0 +1,55 @@
+name: Symlinks
+
+# Centralise the write-technical rule in ONE source: skills/write-technical/SKILL.md.
+# The web runner (Copilot code review and the cloud agent) reads .github/instructions/, not skills/,
+# so this workflow keeps .github/instructions/write-technical.instructions.md as a SYMLINK to the
+# skill. It runs on Linux, where symlinks are reliable, which avoids the Windows materialisation trap.
+#
+# The source SKILL.md carries universal frontmatter (name + description for the skill, applyTo for the
+# instructions file), so one file serves both consumers through the link.
+#
+# Out of scope: the user-level copy in the VS Code user prompts folder is outside this repo and roams
+# through Settings Sync. This workflow cannot maintain it — refresh that copy by hand on a new machine.
+
+on:
+    push:
+        branches: [main]
+        paths:
+            - "skills/write-technical/SKILL.md"
+            - ".github/instructions/write-technical.instructions.md"
+            - ".github/workflows/symlinks.yml"
+    workflow_dispatch:
+
+permissions:
+    contents: write
+
+concurrency:
+    group: link-instructions
+    cancel-in-progress: false
+
+jobs:
+    link:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: Recreate the symlink to the skill source
+              run: |
+                  set -euo pipefail
+                  link=".github/instructions/write-technical.instructions.md"
+                  target="../../skills/write-technical/SKILL.md"
+                  test -f "skills/write-technical/SKILL.md"
+                  rm -f "$link"
+                  ln -s "$target" "$link"
+                  test -L "$link"
+            - name: Commit the symlink if it changed
+              run: |
+                  set -euo pipefail
+                  git add ".github/instructions/write-technical.instructions.md"
+                  if git diff --cached --quiet; then
+                      echo "Symlink already current; nothing to commit."
+                      exit 0
+                  fi
+                  git config user.name "github-actions[bot]"
+                  git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+                  git commit -m "link the write-technical instructions file to the skill source"
+                  git push

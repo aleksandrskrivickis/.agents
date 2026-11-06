@@ -45,6 +45,7 @@ vendor-documented constraint, `[deduced]` for an inference, `[?]` for a guess wo
 ### Engineering practice
 
 - [document-decisions](./document-decisions/SKILL.md) — how to write down the constants, thresholds and algorithm choices a system is built on, so "nobody knows why this is 0.8" stops being true.
+- [write-technical](./write-technical/SKILL.md) — write every output in ASD-STE100 Simplified Technical English: short sentences, active voice, one meaning for each word. Once active, it governs all prose, not only the task that triggered it.
 
 ## Reading order, if you are starting cold
 
