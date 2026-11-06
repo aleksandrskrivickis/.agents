@@ -176,5 +176,3 @@ anything here:
 - [databricks-asset-bundles](../databricks-asset-bundles/SKILL.md) — deploying the pipeline:
   targets, variables, resources, schedules, post-deploy runs.
 - [test-python](../test-python/SKILL.md) — testing pipeline source files that cannot be imported.
-- [document-decisions](../document-decisions/SKILL.md) — for the expectations policy, retry counts
-  and refresh cadence this skill keeps telling you to write a reason for.

@@ -47,8 +47,8 @@ from databricks.sdk import WorkspaceClient
 w = WorkspaceClient()
 w.pipelines.start_update(
     pipeline_id=PIPELINE_ID,
-    full_refresh=False,                               # not everything
-    full_refresh_selection=["documents_slices"],      # just these
+    full_refresh=False,  # not everything
+    full_refresh_selection=["documents_slices"],  # just these
 )
 ```
 
@@ -68,8 +68,7 @@ keyed by its **name**, renaming the flow produces a fresh checkpoint that re-rea
 
 ```python
 @dp.append_flow(target="slices", name=f"slices_{SLICER_GENERATION}")
-def slices_flow():
-    ...
+def slices_flow(): ...
 ```
 
 - No truncation, so prior results stay queryable and comparable.
@@ -108,8 +107,7 @@ configuration:
 > **Leaving these unset in production is itself a decision.** The source project set both retry
 > counts in `dev` only, with the result that nobody could state how many times a production flow
 > retried before failing — the platform default is not recorded anywhere. If you set them in dev, set
-> them in prod too, even if to the same value as the default. See
-> [document-decisions](../../document-decisions/SKILL.md).
+> them in prod too, even if to the same value as the default.
 
 Separately, the **job** wrapping a pipeline has its own `max_retries` and `max_concurrent_runs`;
 those are bundle-level and covered in
@@ -152,7 +150,7 @@ no watermark must remember every key forever.
 ```python
 table_properties = {
     "pipelines.autoOptimize.managed": "true",
-    "quality": "bronze",                       # a convention, not a platform feature
+    "quality": "bronze",  # a convention, not a platform feature
 }
 ```
 

@@ -30,6 +30,7 @@ vendor-documented constraint, `[deduced]` for an inference, `[?]` for a guess wo
 - [develop-sdp](./develop-sdp/SKILL.md) — Spark Declarative Pipelines: the `pyspark.pipelines` API, streaming tables vs materialized views, flows, expectations, AUTO CDC, the event log, and which features are Apache SDP vs Databricks-only.
 - [develop-pyspark](./develop-pyspark/SKILL.md) — PySpark under load: pandas/Arrow UDFs and OOM, Arrow conversion failures, model serving, chunking and embeddings, stateful streaming, joins and skew, throughput, reliable API calls, file ingestion.
 - [develop-scala](./develop-scala/SKILL.md) — Scala on Spark: a custom `FileFormat` DataSource, `UnsafeRow` construction, Maven shading, ScalaTest.
+- [develop-databricks](./develop-databricks/SKILL.md) — working with the platform itself: Unity Catalog introspection through `system.information_schema`, migrating tables into UC with `SYNC`, the copy-vs-refresh trap, and Delta time travel.
 
 ### Deployment and infrastructure
 
@@ -44,16 +45,13 @@ vendor-documented constraint, `[deduced]` for an inference, `[?]` for a guess wo
 
 ### Engineering practice
 
-- [document-decisions](./document-decisions/SKILL.md) — how to write down the constants, thresholds and algorithm choices a system is built on, so "nobody knows why this is 0.8" stops being true.
 - [write-technical](./write-technical/SKILL.md) — write every output in ASD-STE100 Simplified Technical English: short sentences, active voice, one meaning for each word. Once active, it governs all prose, not only the task that triggered it.
 
 ## Reading order, if you are starting cold
 
-1. **[document-decisions](./document-decisions/SKILL.md)** — it is the shortest, and it explains why
-   the other chapters keep rationale next to values.
-2. **[develop-sdp](./develop-sdp/SKILL.md)** then **[develop-pyspark](./develop-pyspark/SKILL.md)** —
+1. **[develop-sdp](./develop-sdp/SKILL.md)** then **[develop-pyspark](./develop-pyspark/SKILL.md)** —
    the declarative layer, then what goes wrong inside it.
-3. **[databricks-asset-bundles](./databricks-asset-bundles/SKILL.md)** then
+2. **[databricks-asset-bundles](./databricks-asset-bundles/SKILL.md)** then
    **[develop-infrastructure](./develop-infrastructure/SKILL.md)** — how the work gets deployed, then
    what it gets deployed onto.
-4. **[test-python](./test-python/SKILL.md)** — and whichever CI chapter matches your host.
+3. **[test-python](./test-python/SKILL.md)** — and whichever CI chapter matches your host.

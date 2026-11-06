@@ -20,26 +20,28 @@ editor open.
 - [develop-sdp](skills/develop-sdp/SKILL.md) — Spark Declarative Pipelines: the `dp` API, streaming table vs materialized view, expectations, the event log, refresh semantics and a triage playbook.
 - [develop-pyspark](skills/develop-pyspark/SKILL.md) — what goes wrong inside a transform: pandas-UDF OOM, Arrow `ChunkedArray` crashes, model serving, document chunking, skew, throughput, never-raise API calls.
 - [develop-scala](skills/develop-scala/SKILL.md) — a custom Spark `FileFormat` DataSource: `UnsafeRow` construction, short-name registration, shaded packaging.
+- [develop-databricks](skills/develop-databricks/SKILL.md) — the platform itself: Unity Catalog introspection, migrating tables into UC, the copy-vs-refresh trap, and Delta time travel.
 
 **Deployment and infrastructure**
 
 - [databricks-asset-bundles](skills/databricks-asset-bundles/SKILL.md) — `databricks.yml`: targets and modes, variable interpolation, resource types, Lakebase, post-deploy runs, and the deploy-time traps.
 - [develop-infrastructure](skills/develop-infrastructure/SKILL.md) — the Azure platform underneath: Bicep in four planes, Terraform for Unity Catalog, and the Azure DevOps pipelines that orchestrate both.
 
-**Testing and practice**
+**Testing**
 
 - [test-python](skills/test-python/SKILL.md) — pytest layout, testing non-importable notebook modules, a hardened local `SparkSession` fixture, wheel and bundle-validation tests.
 - [test-workflows-github](skills/test-workflows-github/SKILL.md) — a GitHub Actions lint-and-test workflow, and how merges get gated.
 - [test-workflows-devops](skills/test-workflows-devops/SKILL.md) — the Azure DevOps equivalent, including the Azure Repos `pr:` trigger trap.
-- [document-decisions](skills/document-decisions/SKILL.md) — how to write down the constants and thresholds a system rests on.
+
+**Engineering practice**
+
+- [write-technical](skills/write-technical/SKILL.md) — write every output in ASD-STE100 Simplified Technical English; once active, it governs all prose, not only the task that triggered it.
 
 Full chapter index, with a reading order: [skills/README.md](skills/README.md).
 
 ## Start here
 
 **Just want to read it.** → **[aleksandrskrivickis.github.io/.agents](https://aleksandrskrivickis.github.io/.agents/)**.
-Start with [document-decisions](skills/document-decisions/SKILL.md) — it is the shortest, and it
-explains why the other chapters keep rationale next to values.
 
 **Use it in VS Code with Copilot.** Clone so the path ends in `code-repositories/.agents`, and
 Copilot picks the skills up for every repo under that root:

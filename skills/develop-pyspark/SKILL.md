@@ -122,5 +122,3 @@ serving limits, checkpoint behaviour, embedding quality or skew.
   serving endpoints get deployed and parameterised per environment.
 - [test-python](../test-python/SKILL.md) — testing a pipeline notebook's pure logic without Spark,
   and the local-SparkSession harness for the rest.
-- [document-decisions](../document-decisions/SKILL.md) — for the batch sizes, thresholds and
-  concurrency numbers this skill keeps telling you to write a reason for.

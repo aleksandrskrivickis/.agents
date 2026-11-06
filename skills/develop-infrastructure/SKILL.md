@@ -157,5 +157,3 @@ This skill is the **Azure platform layer**. The layers above it, in order:
 - [test-workflows-devops](../test-workflows-devops/SKILL.md) — a much smaller Azure DevOps pipeline
   (lint and test only) if the full preflight/approval/lock/Terraform machinery here is more than you
   need.
-- [document-decisions](../document-decisions/SKILL.md) — for the CIDR sizes, retention days,
-  redundancy SKUs and timeouts this skill keeps telling you to write a reason for.

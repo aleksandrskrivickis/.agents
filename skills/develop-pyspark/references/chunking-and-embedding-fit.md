@@ -19,11 +19,11 @@ from langchain_text_splitters import MarkdownHeaderTextSplitter, RecursiveCharac
 markdown_splitter = MarkdownHeaderTextSplitter(
     headers_to_split_on=[("#" * level, f"Header {level}") for level in range(1, 7)],
     return_each_line=False,
-    strip_headers=False,          # keep the heading in the slice: it is context for the embedding
+    strip_headers=False,  # keep the heading in the slice: it is context for the embedding
 )
 
 text_splitter = RecursiveCharacterTextSplitter(
-    separators=[...],             # see "the ladder is the policy" below
+    separators=[...],  # see "the ladder is the policy" below
     is_separator_regex=True,
     chunk_size=3_000,
     chunk_overlap=0,
@@ -51,14 +51,19 @@ chunk is still too big. Ordering is therefore not a style choice; it is the poli
 A ladder descends from structural to desperate:
 
 ```python
-separators=[
-    r"(?:^|\n)ARTICLE\s+\(?\d+\)?",   # structural markers
-    r"\d+\.\d+\s*",                   # 1.1 sub-provision numbering
-    r"\(\s*[0-9a-zA-Z]+\s*\)\s*",     # (a) / (1) / (2A) / (iv) parentheticals
-    r"\n\|",                          # table rows
-    r"\n\n", r"\n",                   # paragraph, line
-    r"(?<=\.)\s+", r"(?<=。)", r"(?<=，)",   # sentence terminators, incl. CJK
-    r"​", r"\s+", r"",           # zero-width space, whitespace, character-level
+separators = [
+    r"(?:^|\n)ARTICLE\s+\(?\d+\)?",  # structural markers
+    r"\d+\.\d+\s*",  # 1.1 sub-provision numbering
+    r"\(\s*[0-9a-zA-Z]+\s*\)\s*",  # (a) / (1) / (2A) / (iv) parentheticals
+    r"\n\|",  # table rows
+    r"\n\n",
+    r"\n",  # paragraph, line
+    r"(?<=\.)\s+",
+    r"(?<=。)",
+    r"(?<=，)",  # sentence terminators, incl. CJK
+    r"​",
+    r"\s+",
+    r"",  # zero-width space, whitespace, character-level
 ]
 ```
 
@@ -88,8 +93,7 @@ that then compete in whatever matching step follows.
 
 Justifying it by analogy is the common failure: *"3000 is roughly equivalent of one MS Word page"*
 explains the **unit**, not the **magnitude**, and says nothing about the object you actually care
-about. That is an *Assumed* decision at best — see
-[document-decisions](../../document-decisions/SKILL.md).
+about. That is a weak justification at best.
 
 **`chunk_overlap = 0` serves diffing and hurts retrieval.** Zero overlap gives clean, non-duplicated
 units for exact-match comparison between document versions; it also means a sentence straddling a
@@ -173,9 +177,7 @@ SLICER_CONFIG = {
 }
 
 # the generation is a digest of that dict — 12 hex chars is plenty
-SLICER_GENERATION = hashlib.sha256(
-    json.dumps(SLICER_CONFIG, sort_keys=True).encode()
-).hexdigest()[:12]
+SLICER_GENERATION = hashlib.sha256(json.dumps(SLICER_CONFIG, sort_keys=True).encode()).hexdigest()[:12]
 ```
 
 Then:
@@ -190,8 +192,7 @@ Then:
 
 ```python
 @dp.append_flow(target="document_slices", name=f"document_slices_{SLICER_GENERATION}")
-def document_slices_flow():
-    ...
+def document_slices_flow(): ...
 ```
 
 What makes it correct, and what it costs:

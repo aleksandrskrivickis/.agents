@@ -155,5 +155,3 @@ databricks bundle run <job-or-pipeline-key> -t <target>
 - [develop-infrastructure](../develop-infrastructure/SKILL.md) — the Azure platform the workspace,
   storage and Unity Catalog live on, underneath the bundle.
 - [test-python](../test-python/SKILL.md) — bundle validation and wheel-build tests.
-- [document-decisions](../document-decisions/SKILL.md) — for the schedules, retry counts and
-  per-target limits rules 8–10 keep telling you to write a reason for.

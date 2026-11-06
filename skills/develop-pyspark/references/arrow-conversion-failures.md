@@ -112,8 +112,9 @@ instead of hoping pandas→Arrow inference agrees with the schema.
 ```python
 import pyarrow as pa
 
+
 def fetch_arrow(batches):
-    client = Client(...)                       # once per partition
+    client = Client(...)  # once per partition
     try:
         for batch in batches:
             # combine_chunks() collapses a multi-chunk ChunkedArray into one contiguous array —
@@ -191,7 +192,7 @@ worker holds.
 **3. Write the falsifying number down before you run the query.** A hypothesis that the OOM came
 from line-heavy documents was given a threshold of 2.5M lines *before* the query ran; the corpus
 maximum turned out to be 211,334 lines, and the hypothesis died cleanly instead of being argued
-about. See [document-decisions](../../document-decisions/SKILL.md) for the practice.
+about.
 
 ## Quick reference
 

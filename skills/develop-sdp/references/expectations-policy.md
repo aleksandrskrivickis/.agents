@@ -66,7 +66,6 @@ dp.create_streaming_table(
         #    non-null, non-empty value.
         "empty_document_id": "request_success IS NOT TRUE OR document_id IS NOT NULL",
         "empty_title": "request_success IS NOT TRUE OR (title IS NOT NULL AND length(trim(title)) > 0)",
-
         # 2. Value checks.
         "request_succeeded": "request_success = true",
         "request_forbidden": "request_status_code IS DISTINCT FROM 403",
@@ -130,9 +129,7 @@ Two fixes, and the second is better:
 ```python
 # Generate the block once, in the shared utils package.
 RETRYABLE = (401, 403, 404, 429, 500, 502, 503, 504, 513, 598)
-STATUS_EXPECTATIONS = {
-    f"request_status_{code}": f"request_status_code IS DISTINCT FROM {code}" for code in RETRYABLE
-}
+STATUS_EXPECTATIONS = {f"request_status_{code}": f"request_status_code IS DISTINCT FROM {code}" for code in RETRYABLE}
 
 # Or, better: assert success once and let the code be a dimension you group by.
 {"request_succeeded": "request_success = true"}
@@ -188,5 +185,3 @@ circular and started guarding a contract. Two notes if you get there:
   Databricks-only.
 - [operations-and-refresh.md](./operations-and-refresh.md) — reading the event log, where expectation
   metrics actually land.
-- [document-decisions](../../document-decisions/SKILL.md) — "every expectation is advisory" is a
-  decision; record it, with an owner.

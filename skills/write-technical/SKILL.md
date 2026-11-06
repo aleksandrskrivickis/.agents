@@ -53,8 +53,3 @@ applyTo: '**'
 Use it for documentation, READMEs, commit messages, pull request text, review comments, and chat
 replies — any English that a person or an agent must read and act on. Do not apply it to code
 identifiers, string literals, or the content of data.
-
-## Related skills
-
-- [document-decisions](../document-decisions/SKILL.md) — records *why* a value was chosen; this
-  skill governs how to write that record clearly.
