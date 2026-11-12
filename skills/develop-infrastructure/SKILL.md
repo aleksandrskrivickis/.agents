@@ -154,6 +154,6 @@ This skill is the **Azure platform layer**. The layers above it, in order:
   pipelines and Lakebase resources deployed *into* the workspace this skill provisions.
 - [develop-sdp](../develop-sdp/SKILL.md) — the declarative pipelines those bundles carry.
 - [develop-pyspark](../develop-pyspark/SKILL.md) — the transform code inside them.
-- [test-workflows-devops](../test-workflows-devops/SKILL.md) — a much smaller Azure DevOps pipeline
+- [workflows-devops](../workflows-devops/SKILL.md) — a much smaller Azure DevOps pipeline
   (lint and test only) if the full preflight/approval/lock/Terraform machinery here is more than you
   need.

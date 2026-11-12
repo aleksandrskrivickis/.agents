@@ -40,8 +40,8 @@ vendor-documented constraint, `[deduced]` for an inference, `[?]` for a guess wo
 ### Testing and CI
 
 - [test-python](./test-python/SKILL.md) — pytest layout, testing non-importable notebook modules, local-Spark fixtures, bundle and wheel tests, integration and golden-corpus testing.
-- [test-workflows-github](./test-workflows-github/SKILL.md) — a GitHub Actions lint-and-test pipeline, and how merges actually get gated.
-- [test-workflows-devops](./test-workflows-devops/SKILL.md) — the Azure DevOps equivalent, including the Azure Repos `pr:` trigger trap.
+- [workflows-github](./workflows-github/SKILL.md) — a GitHub Actions lint-and-test pipeline plus version-bump + release-on-merge, and how merges actually get gated.
+- [workflows-devops](./workflows-devops/SKILL.md) — the Azure DevOps equivalent, including the Azure Repos `pr:` trigger trap.
 
 ### Engineering practice
 

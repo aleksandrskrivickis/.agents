@@ -1,6 +1,6 @@
 ---
-name: test-workflows-devops
-description: 'Use when building an Azure DevOps (azure-pipelines.yml) pipeline to run Python tests. Covers UsePythonVersion + uv, advisory ruff, pytest with PublishTestResults, and the critical Azure Repos caveat that a pr: trigger is ignored (PR validation is a Build Validation branch policy). Mirrors the databricks-web-scraping azure-pipelines.'
+name: workflows-devops
+description: 'Use when building Azure DevOps (azure-pipelines.yml) pipelines for a code repo: running Python tests (UsePythonVersion + uv, advisory ruff, pytest with PublishTestResults), the critical Azure Repos caveat that a pr: trigger is ignored (PR validation is a Build Validation branch policy), and a release/version-bump pipeline on main ([skip ci] loop prevention, the build-service push identity). Mirrors the databricks-web-scraping azure-pipelines and the calendar-privacy-blur release pattern.'
 ---
 
 # Azure DevOps: Python test pipeline
@@ -70,7 +70,7 @@ az repos policy build create \
 
 - `PublishTestResults@2` renders the JUnit report in the run summary. The GitHub Actions equivalent
   is an artifact upload or a reporter action — see
-  [test-workflows-github](../test-workflows-github/SKILL.md).
+  [workflows-github](../workflows-github/SKILL.md).
 - **`failTaskOnFailedTests: true` on the publish step is what fails the build.** The pytest step's
   own exit code also fails it, but when you make pytest advisory during a migration this is the lever
   that keeps results visible while still gating.
@@ -92,11 +92,26 @@ az repos policy build create \
   than two. A split invites the state where the test pipeline is registered and the deploy pipeline
   is the one with the branch policy attached.
 
+## Release & version bump
+
+The same idea as the GitHub release workflow works here: a pipeline on `main` runs a pure bump
+script, commits the new version and pushes. Two DevOps-specific points:
+
+- **Loop prevention.** Azure Pipelines skips a run when the triggering commit message contains
+  `[skip ci]` (or `***NO_CI***`), so end the bump commit with it. The push must use the build
+  service identity — grant the project's *Build Service* account "Contribute" on the repo — rather
+  than a PAT.
+- **No `gh release`.** There is no first-class release object; tag the commit (`git tag` + push)
+  and attach any artefacts to the pipeline run or a Universal Package feed.
+
+See [workflows-github](../workflows-github/SKILL.md) for the bump-script shape and the "store the
+version where the ecosystem reads it" rule — both are platform-independent.
+
 ## Related skills
 
 - [test-python](../test-python/SKILL.md) — how to write the tests this pipeline runs, and the
   `pyproject.toml` configuration it relies on.
-- [test-workflows-github](../test-workflows-github/SKILL.md) — the GitHub Actions equivalent.
+- [workflows-github](../workflows-github/SKILL.md) — the GitHub Actions equivalent.
 - [databricks-asset-bundles](../databricks-asset-bundles/SKILL.md) — what `bundle validate` checks.
 - [develop-infrastructure](../develop-infrastructure/SKILL.md) — a much larger Azure DevOps pipeline
   set (preflight, approvals, locks, Terraform, PSRule) if you need more than lint-and-test.

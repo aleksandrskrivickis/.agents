@@ -131,8 +131,8 @@ Conventions worth copying:
   Share it via `core.hooksPath` (`git config core.hooksPath .githooks`) so it is versioned rather
   than per-clone. Never assert an exact version string in a test when a hook moves it.
 
-For CI, use the [test-workflows-github](../test-workflows-github/SKILL.md) or
-[test-workflows-devops](../test-workflows-devops/SKILL.md) skill.
+For CI, use the [workflows-github](../workflows-github/SKILL.md) or
+[workflows-devops](../workflows-devops/SKILL.md) skill.
 
 ## Don'ts
 
@@ -149,5 +149,5 @@ For CI, use the [test-workflows-github](../test-workflows-github/SKILL.md) or
   which parts are pure enough to unit-test.
 - [develop-sdp](../develop-sdp/SKILL.md) — why pipeline source files can't be imported.
 - [databricks-asset-bundles](../databricks-asset-bundles/SKILL.md) — what `bundle validate` checks.
-- [test-workflows-github](../test-workflows-github/SKILL.md) /
-  [test-workflows-devops](../test-workflows-devops/SKILL.md) — running this suite in CI.
+- [workflows-github](../workflows-github/SKILL.md) /
+  [workflows-devops](../workflows-devops/SKILL.md) — running this suite in CI.

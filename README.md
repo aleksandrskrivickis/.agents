@@ -30,8 +30,8 @@ editor open.
 **Testing**
 
 - [test-python](skills/test-python/SKILL.md) — pytest layout, testing non-importable notebook modules, a hardened local `SparkSession` fixture, wheel and bundle-validation tests.
-- [test-workflows-github](skills/test-workflows-github/SKILL.md) — a GitHub Actions lint-and-test workflow, and how merges get gated.
-- [test-workflows-devops](skills/test-workflows-devops/SKILL.md) — the Azure DevOps equivalent, including the Azure Repos `pr:` trigger trap.
+- [workflows-github](skills/workflows-github/SKILL.md) — a GitHub Actions lint-and-test workflow plus version-bump + release-on-merge, and how merges get gated.
+- [workflows-devops](skills/workflows-devops/SKILL.md) — the Azure DevOps equivalent, including the Azure Repos `pr:` trigger trap.
 
 **Engineering practice**
 

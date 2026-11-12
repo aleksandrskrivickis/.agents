@@ -47,7 +47,8 @@ Both tests invoke an external CLI. The wrapper is small and every argument of it
 import shutil, subprocess
 from pathlib import Path
 
-BUNDLE_ROOT = Path(__file__).resolve().parents[3]       # repo root from tests/unit/bundle/
+BUNDLE_ROOT = Path(__file__).resolve().parents[3]  # repo root from tests/unit/bundle/
+
 
 def run_command(command):
     executable = shutil.which(command[0])
@@ -55,17 +56,16 @@ def run_command(command):
     result = subprocess.run(
         [executable, *command[1:]],
         cwd=BUNDLE_ROOT,
-        stdin=subprocess.DEVNULL,       # never let a CLI prompt and hang the run
+        stdin=subprocess.DEVNULL,  # never let a CLI prompt and hang the run
         capture_output=True,
         text=True,
         encoding="utf-8",
-        errors="replace",               # a CLI emitting odd bytes must not raise UnicodeDecodeError
-        check=False,                    # we assert with a readable message instead
+        errors="replace",  # a CLI emitting odd bytes must not raise UnicodeDecodeError
+        check=False,  # we assert with a readable message instead
         timeout=1800,
     )
     assert result.returncode == 0, (
-        f"{' '.join(command)} failed with exit code {result.returncode}\n"
-        f"{result.stdout}\n{result.stderr}"
+        f"{' '.join(command)} failed with exit code {result.returncode}\n{result.stdout}\n{result.stderr}"
     )
 ```
 
@@ -91,7 +91,7 @@ def built_wheel(tmp_path_factory):
     assert len(wheels) == 1, f"Expected one built wheel, found {wheels}"
 
     with ZipFile(wheels[0]) as wheel:
-        assert wheel.testzip() is None                      # not corrupt
+        assert wheel.testzip() is None  # not corrupt
         names = wheel.namelist()
         assert any(n.startswith("utils/") for n in names), "Wheel does not contain the utils package"
         assert any(n.endswith(".dist-info/METADATA") for n in names), "Wheel is missing package metadata"
@@ -127,7 +127,7 @@ Why each assertion exists:
 def validated_bundle(request):
     if not request.config.getoption("--validate-bundle"):
         pytest.skip("Pass --validate-bundle to run authenticated bundle validation.")
-    request.getfixturevalue("built_wheel")               # validation needs the artifact present
+    request.getfixturevalue("built_wheel")  # validation needs the artifact present
     target = request.config.getoption("--bundle-target")
     run_command(["databricks", "bundle", "validate", "-t", target])
     return target
@@ -172,8 +172,8 @@ uv run pytest tests/unit/pipeline     # skip the bundle folder entirely — no s
   most likely to catch a packaging regression, and it costs one `uv build`. If that is too slow for a
   pre-commit loop, gate it behind its own flag on the same pattern as `--validate-bundle`.
 - In CI, run the default suite on every push and the `--validate-bundle` form only where credentials
-  exist. See [test-workflows-devops](../../test-workflows-devops/SKILL.md) /
-  [test-workflows-github](../../test-workflows-github/SKILL.md).
+  exist. See [workflows-devops](../../workflows-devops/SKILL.md) /
+  [workflows-github](../../workflows-github/SKILL.md).
 
 ## Checklist
 

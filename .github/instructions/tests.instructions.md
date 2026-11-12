@@ -4,7 +4,7 @@ applyTo: "src/**,tests/**"
 
 When generating or maintaining tests, follow the **`test-python`** skill (pytest layout, `test_`
 naming, mocking, the non-importable-module harness, running with `uv`). For the CI that runs them,
-use **`test-workflows-github`** (GitHub Actions) or **`test-workflows-devops`** (Azure DevOps).
+use **`workflows-github`** (GitHub Actions) or **`workflows-devops`** (Azure DevOps).
 
 Essentials to honour even without loading a skill (GitHub's reviewer/cloud-agent reads this file but
 scans skills only from `.github/skills/`, so the rules below must stand alone):
