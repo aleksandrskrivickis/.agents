@@ -1,0 +1,36 @@
+name: Run TODO to Issue
+
+on:
+    push:
+        branches: [main]
+    workflow_dispatch:
+
+permissions:
+    contents: write
+    issues: write
+
+concurrency:
+    group: todo-to-issue
+    cancel-in-progress: false
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - name: TODO to Issue
+              uses: alstr/todo-to-issue-action@v5
+              with:
+                  INSERT_ISSUE_URLS: "true"
+            - name: Commit the issue URLs if they changed
+              run: |
+                  set -euo pipefail
+                  git add .
+                  if git diff --cached --quiet; then
+                      echo "No TODO links changed; nothing to commit."
+                      exit 0
+                  fi
+                  git config user.name "github-actions[bot]"
+                  git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+                  git commit -m "add GitHub issue links to TODOs [skip ci]"
+                  git push
