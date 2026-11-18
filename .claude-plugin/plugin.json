@@ -1,3 +1,9 @@
 {
-    "name": "shared"
+    "name": "shared",
+    "version": "0.1.7",
+    "description": "Reusable skills for engineering workflows.",
+    "author": {
+        "name": "Aleksandrs Krivickis",
+        "url": "https://github.com/aleksandrskrivickis"
+    }
 }

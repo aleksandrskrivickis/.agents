@@ -1,5 +1,6 @@
 {
     "name": "aleks-agents",
+    "description": "Reusable engineering skills for Databricks, Azure, Python testing, and VS Code tooling.",
     "owner": {
         "name": "Aleksandrs Krivickis"
     },
@@ -7,7 +8,12 @@
         {
             "name": "shared",
             "source": "./",
-            "description": "Skills from my .agents repo"
+            "description": "Reusable skills for engineering workflows.",
+            "version": "0.1.7",
+            "author": {
+                "name": "Aleksandrs Krivickis",
+                "url": "https://github.com/aleksandrskrivickis"
+            }
         }
     ]
 }
