@@ -4,9 +4,8 @@
 
 Production-tested engineering knowledge, written so a coding agent and a human can read the same page.
 
-Nine chapters on building data platforms on Databricks and Azure — what breaks, why it breaks, and
-what the fix actually was. Every entry came out of a production incident, a failed deploy, or a
-value nobody could defend in review.
+A handbook of reusable engineering skills for Databricks, Azure, Python testing, and VS Code tooling.
+It records practical patterns, common failures, and fixes.
 
 They are **agent skills**: Markdown files that GitHub Copilot and Claude Code load as context when
 the task matches. They are also just good documentation, so they are published as a
@@ -36,6 +35,7 @@ editor open.
 **Engineering practice**
 
 - [write-technical](skills/write-technical/SKILL.md) — write every output in ASD-STE100 Simplified Technical English; once active, it governs all prose, not only the task that triggered it.
+- [copilot-chat-backup](skills/copilot-chat-backup/SKILL.md) — export VS Code Copilot chat sessions to Obsidian Markdown.
 
 Full chapter index, with a reading order: [skills/README.md](skills/README.md).
 

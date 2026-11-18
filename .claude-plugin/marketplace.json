@@ -1,0 +1,13 @@
+{
+    "name": "aleks-agents",
+    "owner": {
+        "name": "Aleksandrs Krivickis"
+    },
+    "plugins": [
+        {
+            "name": "shared",
+            "source": "./",
+            "description": "Skills from my .agents repo"
+        }
+    ]
+}

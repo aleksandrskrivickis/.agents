@@ -46,6 +46,7 @@ vendor-documented constraint, `[deduced]` for an inference, `[?]` for a guess wo
 ### Engineering practice
 
 - [write-technical](./write-technical/SKILL.md) — write every output in ASD-STE100 Simplified Technical English: short sentences, active voice, one meaning for each word. Once active, it governs all prose, not only the task that triggered it.
+- [copilot-chat-backup](./copilot-chat-backup/SKILL.md) — export VS Code Copilot chat sessions to Obsidian Markdown.
 
 ## Reading order, if you are starting cold
 
