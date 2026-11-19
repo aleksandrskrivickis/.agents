@@ -35,7 +35,8 @@ editor open.
 **Engineering practice**
 
 - [write-technical](skills/write-technical/SKILL.md) — write every output in ASD-STE100 Simplified Technical English; once active, it governs all prose, not only the task that triggered it.
-- [copilot-chat-backup](skills/copilot-chat-backup/SKILL.md) — export VS Code Copilot chat sessions to Obsidian Markdown.
+- [obsidian-github-copilot](skills/obsidian-github-copilot/SKILL.md) — export VS Code Copilot chat sessions to Obsidian Markdown.
+- [obsidian-tags-generate](skills/obsidian-tags-generate/SKILL.md) — generate Obsidian note tags from the existing vault taxonomy.
 
 Full chapter index, with a reading order: [skills/README.md](skills/README.md).
 

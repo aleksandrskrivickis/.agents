@@ -1,5 +1,5 @@
 ---
-name: copilot-chat-backup
+name: obsidian-github-copilot
 description: 'Use when exporting GitHub Copilot chat sessions from VS Code to Obsidian Markdown. Covers workspaceStorage hash detection, JSON and JSONL sessions, .code-workspace files, and recurring exports.'
 ---
 
@@ -27,13 +27,13 @@ description: 'Use when exporting GitHub Copilot chat sessions from VS Code to Ob
 Set the destination to the vault root. Run this command from the workspace root:
 
 ```bash
-python .agents/skills/copilot-chat-backup/scripts/export_copilot_chats_to_obsidian.py --workspace "$PWD" --destination "./.obsidian/General vault" --dry-run
+python .agents/skills/obsidian-github-copilot/scripts/export_copilot_chats_to_obsidian.py --workspace "$PWD" --destination "./.obsidian/General vault" --dry-run
 ```
 
 Remove `--dry-run` to write the notes. To select a workspace file, pass its path:
 
 ```bash
-python .agents/skills/copilot-chat-backup/scripts/export_copilot_chats_to_obsidian.py --workspace "C:/path/workspace.code-workspace" --destination "C:/code-repositories/.obsidian/General vault"
+python .agents/skills/obsidian-github-copilot/scripts/export_copilot_chats_to_obsidian.py --workspace "C:/path/workspace.code-workspace" --destination "C:/code-repositories/.obsidian/General vault"
 ```
 
 The exporter writes notes to `<destination>/LLM chats/github/YYYY/MM/<topic>.md`. It adds the session ID to a filename when titles collide.
@@ -47,7 +47,7 @@ Use Windows Task Scheduler to run the exporter on a daily or weekly trigger:
 3. Set `Add arguments` to the exporter path, workspace path, and vault path:
 
 	```text
-	"C:/path/.agents/skills/copilot-chat-backup/scripts/export_copilot_chats_to_obsidian.py" --workspace "C:/path/workspace.code-workspace" --destination "C:/code-repositories/.obsidian/General vault"
+	"C:/path/.agents/skills/obsidian-github-copilot/scripts/export_copilot_chats_to_obsidian.py" --workspace "C:/path/workspace.code-workspace" --destination "C:/code-repositories/.obsidian/General vault"
 	```
 
 4. Run the task as the same Windows account that runs VS Code.
