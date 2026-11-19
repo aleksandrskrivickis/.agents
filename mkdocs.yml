@@ -1,7 +1,7 @@
-site_name: The agent skills handbook
+site_name: Agent Skills Handbook
 site_description: >-
-    A handbook of reusable, production-tested agent skills for Databricks, Spark and Python
-    testing — portable across GitHub Copilot, Claude Code and other skills-compatible agents.
+    Browse reusable skills for Claude and GitHub Copilot.
+    Topics include Databricks, PySpark, Azure, pytest, CI/CD, Obsidian, and technical writing.
 site_url: https://aleksandrskrivickis.github.io/.agents/
 site_author: Aleksandrs Krivickis
 repo_url: https://github.com/aleksandrskrivickis/.agents

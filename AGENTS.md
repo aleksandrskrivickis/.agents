@@ -16,6 +16,7 @@ projects like `databricks-web-scraping/`; those carry their own `AGENTS.md`.
   ignored. Quote `description` values that contain a colon.
 - Keep `SKILL.md` lean; push exhaustive detail into `references/` and link with `./references/...`.
   The `description` is the discovery surface — write "Use when…" with concrete trigger keywords.
+  Keep the parsed `description` at 1,024 characters or fewer. Claude.ai truncates longer values.
 - `.claude/skills` is a **local, gitignored** per-clone symlink to `skills/` (Claude Code only);
   it is not committed or automated. See `README.md` → "Post-clone setup".
 - Links into a sibling repo are workspace-relative from a skill file

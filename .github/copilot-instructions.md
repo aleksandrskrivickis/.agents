@@ -9,7 +9,8 @@ changes take effect in the same PR that introduces them.
 
 - **Frontmatter validity.** Every `SKILL.md` must have YAML frontmatter whose `name` exactly
   matches its folder name, plus a non-empty `description`. A mismatch or missing field makes the
-  skill silently undiscoverable — flag it. Quote any value containing a colon.
+  skill silently undiscoverable — flag it. Flag a parsed `description` longer than 1,024
+  characters; Claude.ai truncates it. Quote any value containing a colon.
 - **Lean `SKILL.md`.** The body should stay short; exhaustive detail belongs in `references/`,
   linked with `./references/...`. Flag large reference blocks inlined into `SKILL.md`.
 - **Reference-link hygiene.** Keep resource links one level deep. Flag links that will not resolve;

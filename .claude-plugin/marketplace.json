@@ -1,6 +1,6 @@
 {
     "name": "aleks-agents",
-    "description": "Reusable engineering skills for Databricks, Azure, Python testing, and VS Code tooling.",
+    "description": "A collection of reusable agent skills for Claude. Topics include software development, cloud infrastructure, testing, automation, and technical writing.",
     "owner": {
         "name": "Aleksandrs Krivickis"
     },
@@ -8,8 +8,19 @@
         {
             "name": "shared",
             "source": "./",
-            "description": "Reusable skills for engineering workflows.",
-            "version": "0.1.7",
+            "displayName": "Shared Agent Skills",
+            "description": "Reusable skills for Claude. Topics include Databricks, PySpark, Azure, pytest, CI/CD, Obsidian, and technical writing. No connectors or tools.",
+            "homepage": "https://aleksandrskrivickis.github.io/.agents/#install-in-claude",
+            "category": "Engineering",
+            "tags": [
+                "databricks",
+                "pyspark",
+                "apache-spark",
+                "azure",
+                "pytest",
+                "ci-cd",
+                "obsidian"
+            ],
             "author": {
                 "name": "Aleksandrs Krivickis",
                 "url": "https://github.com/aleksandrskrivickis"

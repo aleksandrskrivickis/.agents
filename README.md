@@ -1,6 +1,10 @@
+---
+title: Shared Skills for Claude and GitHub Copilot
+---
+
 ![The agent skills handbook](https://m.media-amazon.com/images/M/MV5BMjEzODMzMzg1NF5BMl5BanBnXkFtZTYwNDE2NTE3._V1_.jpg)
 
-# The agent skills handbook
+# Agent Skills Handbook
 
 Production-tested engineering knowledge, written so a coding agent and a human can read the same page.
 
@@ -44,6 +48,8 @@ Full chapter index, with a reading order: [skills/README.md](skills/README.md).
 
 **Just want to read it.** → **[aleksandrskrivickis.github.io/.agents](https://aleksandrskrivickis.github.io/.agents/)**.
 
+**Use it in Claude.** [Install Shared Agent Skills](#install-in-claude) from the GitHub marketplace.
+
 **Use it in VS Code with Copilot.** Clone so the path ends in `code-repositories/.agents`, and
 Copilot picks the skills up for every repo under that root:
 
@@ -54,8 +60,8 @@ git clone https://github.com/aleksandrskrivickis/.agents.git /path/to/code-repos
 Then **Developer: Reload Window**. Loaded skills appear as slash commands (type `/`) and are also
 auto-selected by their `description`.
 
-**Use it with Claude Code.** Same clone, plus a one-time local symlink so `.claude/skills` points at
-`skills/` — see [post-clone setup](#post-clone-setup-the-claudeskills-symlink) below.
+**Use it with Claude Code.** Install from the marketplace with the [Claude Code commands](#claude-code).
+For a local clone, use the [symlink setup](#post-clone-setup-the-claudeskills-symlink) instead.
 
 **Carry it everywhere on one machine.** Clone into a personal skills path instead, and the skills
 apply in every workspace:
@@ -65,6 +71,64 @@ git clone https://github.com/aleksandrskrivickis/.agents.git ~/.copilot/skills  
 ```
 
 `git pull` to update; reload the window to pick up changes.
+
+## Install in Claude
+
+**Shared Agent Skills** adds instructions for topics such as PySpark, Azure, Python testing, CI/CD, Obsidian, and technical writing.
+It adds no connectors or tools. The handbook is public. GitHub hosts the custom marketplace, not Anthropic.
+
+### Claude app
+
+1. Open [Customize > Plugins](https://claude.ai/new#settings/customize-plugins), or open **Customize > Plugins** in Claude Desktop.
+2. Select **Add > Add marketplace**.
+3. Choose **Add from a repository**.
+4. Paste the GitHub repository URL below and confirm.
+5. In **Discover**, select **Shared Agent Skills**, then select **Add**.
+6. Type `/` in Chat or Cowork to see the available skills.
+
+```text
+https://github.com/aleksandrskrivickis/.agents
+```
+
+Use the GitHub repository URL, not the handbook URL. The marketplace needs the repository files.
+If Claude shows **Shared**, check for the plugin from `aleks-agents`. The install ID has not changed.
+If your organization restricts custom marketplaces, ask an owner to allow this repository.
+See [Claude Help: Use plugins in Claude](https://support.claude.com/en/articles/13837440-use-plugins-in-claude).
+
+### Claude Code
+
+Run these commands in a terminal to add the marketplace directly in Claude Code:
+
+```bash
+claude plugin marketplace add https://github.com/aleksandrskrivickis/.agents.git
+claude plugin install shared@aleks-agents
+```
+
+If the plugin already syncs from your Claude account, use that copy instead of installing it again.
+
+### Try a skill
+
+After you add the plugin, ask Claude one of these:
+
+- "Review my `databricks.yml` bundle for deploy-time mistakes."
+- "My pandas UDF runs out of memory on Databricks. What should I check?"
+- "Write a GitHub Actions workflow that runs pytest and publishes a release."
+
+Claude loads the matching skill and follows its guidance.
+
+## Privacy
+
+**Shared Agent Skills** contains instruction files only. It adds no connectors, MCP servers, hooks,
+or executable code.
+
+- It does not read or store personal data.
+- It does not send data to any external service.
+- It retains no data, because it runs no service.
+- It is not directed at people under 18.
+
+The skills load as context in Claude, Cowork, and Claude Code. Claude processes your prompts under
+the [Anthropic Privacy Policy](https://www.anthropic.com/privacy). Report a problem through
+[GitHub issues](https://github.com/aleksandrskrivickis/.agents/issues).
 
 ## How a chapter is built
 
@@ -226,10 +290,13 @@ copy both files into a code repository to activate. Authoring guidance:
 
 ### Versioning and releases
 
-The `publish.yml` run derives the next patch version from the latest GitHub release, zips the
-handbook, publishes the release (tag + generated notes + zip), then deploys the site. Nothing is
-hardcoded — the site header shows the latest release automatically (fetched from GitHub via
-`repo_url`), so a version only appears once the first release exists.
+The Claude plugin manifest holds the version. The publish workflow bumps the patch number in
+`.claude-plugin/plugin.json`, commits it to `main`, then publishes a GitHub release with the same
+version and the handbook ZIP. The release tag follows the manifest. The workflow then deploys the
+site. The site header shows the latest GitHub release.
+
+Set the version only in the manifest. The commit carries `[skip ci]`, so it does not start another
+run. The publish workflow needs permission to push to `main` with its GitHub token.
 
 ## Contributing
 

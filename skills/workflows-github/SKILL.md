@@ -1,6 +1,6 @@
 ---
 name: workflows-github
-description: 'Use when building GitHub Actions workflows for a code repo: a test pipeline on push/pull_request (setup-python + uv or setup-node, advisory ruff, pytest/vitest, JUnit artifact, path triggers, gating via branch protection/rulesets) and an automated version-bump + release-on-merge workflow (a pure bump script, [skip ci] loop prevention, default GITHUB_TOKEN semantics, gh release --generate-notes). Distilled from the databricks-web-scraping test pipeline and the calendar-privacy-blur release pipeline.'
+description: 'Use when building GitHub Actions workflows for a code repo: a test pipeline on push/pull_request (setup-python + uv or setup-node, advisory ruff, pytest/vitest, JUnit artifact, path triggers, gating via branch protection/rulesets) and an automated version-bump + release-on-merge workflow (bump-my-version via pipx, [skip ci] loop prevention, default GITHUB_TOKEN semantics, gh release --generate-notes). Distilled from the databricks-web-scraping test pipeline and the calendar-privacy-blur release pipeline.'
 ---
 
 # GitHub Actions: test and release workflows
@@ -104,38 +104,62 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: { ref: main }
-      - name: Bump the version
+      - name: Bump, commit and tag
         id: bump
-        run: python tools/bump_version.py # edits the file(s); appends version to $GITHUB_OUTPUT
-      - name: Commit, tag and push
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -am "Release ${{ steps.bump.outputs.version }} [skip ci]"
-          git tag "v${{ steps.bump.outputs.version }}"
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
+          pipx run bump-my-version bump patch   # pipx is preinstalled on the runner; config commits + tags
+          echo "version=$(pipx run bump-my-version show current_version)" >> "$GITHUB_OUTPUT"
           git push --follow-tags
       - name: Publish the release
-        env: { GH_TOKEN: ${{ github.token }} }
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: gh release create "v${{ steps.bump.outputs.version }}" --generate-notes
 ```
 
-- **Why it does not loop.** The release commit carries `[skip ci]`, which GitHub honours by skipping
-  the run; and a push made with the default `GITHUB_TOKEN` does not start new workflow runs at all.
-  Either alone suffices — keep both, because swapping in a Personal Access Token (to trigger
-  downstream workflows) removes the second guarantee.
-- **The bump script is a pure file edit.** It changes the version field(s), prints the new version,
-  and appends `previous`/`version` to `$GITHUB_OUTPUT`. Doing no git work keeps the arithmetic
-  unit-testable. Bump the *last* component (patch); validate it is dot-separated integers without
-  leading zeros before writing.
-- **Two files, one version.** With both a Python and a JS package, bump `pyproject.toml` and mirror
-  it into `package.json`, then run `npm install --package-lock-only` so the lock file's version
-  tracks too — otherwise `npm ci` fails its sync check.
+`bump-my-version` reads its config from `.bumpversion.toml` (or a `[tool.bumpversion]` table in
+`pyproject.toml`). Keep `current_version` in `.bumpversion.toml` so it does not match the `[project]`
+version line in `pyproject.toml`:
+
+```toml
+# .bumpversion.toml
+[tool.bumpversion]
+current_version = "0.1.0"
+commit = true
+tag = true
+message = "Release v{new_version} [skip ci]"
+tag_name = "v{new_version}"
+
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
+search = 'version = "{current_version}"'
+replace = 'version = "{new_version}"'
+```
+
+- **Why it does not loop.** `bump-my-version` writes a commit whose message carries `[skip ci]`,
+  which GitHub honours by skipping the run; and a push made with the default `GITHUB_TOKEN` does not
+  start new workflow runs at all. Either alone suffices — keep both, because swapping in a Personal
+  Access Token (to trigger downstream workflows) removes the second guarantee.
+- **Attribute the commit to a person, not the bot.** `${{ github.actor }}` and `${{ github.actor_id }}`
+  name whoever triggered the run, so the bump commit counts on their GitHub contribution graph through
+  the `id+login@users.noreply.github.com` noreply address. To credit the Actions bot instead, hardcode
+  `github-actions[bot]` with id `41898282`.
+- **Use a known tool, not a hand-rolled script.**
+  [`bump-my-version`](https://github.com/callowayproject/bump-my-version) (the maintained successor to
+  `bumpversion` / `bump2version`) edits the version in every file its config lists, then commits and
+  tags. Run it with `pipx run`, which is preinstalled on GitHub-hosted runners, so the workflow needs
+  no install step. `bump patch` raises the last component; `show current_version` prints the new
+  value for the release tag. The `callowayproject/bump-my-version` action is an alternative.
+- **One version, many files.** Add a `[[tool.bumpversion.files]]` block for each file that holds the
+  version, such as `pyproject.toml` and, for a JS package, `package.json`. The tool updates them
+  together, so they cannot drift. Run `npm install --package-lock-only` after the bump so the lock
+  file's version tracks too — otherwise `npm ci` fails its sync check.
 - **Store the version where the ecosystem reads it.** Python: a static `version` in `pyproject.toml`,
   read at runtime with `importlib.metadata.version("<dist-name>")`. JS: the `version` in
-  `package.json`, injected into the bundle (Vite `define`). Avoid a second copy in source
-  (`__version__ = "..."`) that drifts. (An editable install freezes the metadata at install time, so
-  trigger a rebuild on a `pyproject.toml` change if you need the running process to show the new
-  number.)
+  `package.json`, injected into the bundle (Vite `define`). An editable install freezes the metadata
+  at install time, so trigger a rebuild on a `pyproject.toml` change if the running process must show
+  the new number.
 - **Attach artefacts to the release**, not a rebuild of them: `gh release create vX a.zip b.zip`. For
   a store/registry upload, split it into a dependent job so "re-run failed jobs" retries only the
   upload, never the bump.

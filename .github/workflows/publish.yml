@@ -1,11 +1,11 @@
 name: Publish
 run-name: Version, release and deploy the handbook
 
-# One flow per push to main: compute the next version from the latest GitHub release, stage the
-# docs, build the Zensical site, zip the staged docs for the release, publish the release, then
-# deploy the site to Pages. The site header shows the latest release automatically (via repo_url),
-# so no version is hardcoded. docs/, site/ and dist/ are build-only and gitignored — never committed.
-# Prerequisite: Settings → Pages → Source = "GitHub Actions".
+# For each qualifying push to main: bump the version in the Claude plugin manifest, commit it,
+# build and zip the handbook, publish the matching GitHub release, then deploy the site to Pages.
+# The manifest is the single source of truth for the version, and the release tag follows it. The
+# site header shows the latest release automatically (via repo_url). docs/, site/ and dist/ are
+# build-only and gitignored. Prerequisite: Settings → Pages → Source = "GitHub Actions".
 on:
     push:
         branches: [main]
@@ -15,6 +15,7 @@ on:
             - "README.md"
             - "AGENTS.md"
             - "mkdocs.yml"
+            - ".claude-plugin/**"
             - ".github/copilot-instructions.md"
             - ".github/instructions/**"
             - ".github/workflows/publish.yml"
@@ -32,32 +33,39 @@ concurrency:
 
 jobs:
     publish:
+        # Skip the bump step's own commit. A push with the default GITHUB_TOKEN does not start
+        # workflow runs anyway, so this is insurance against swapping in a PAT.
+        if: ${{ github.ref == 'refs/heads/main' && !contains(github.event.head_commit.message, '[skip ci]') }}
         environment:
             name: github-pages
             url: ${{ steps.deployment.outputs.page_url }}
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
+              with:
+                  ref: main
             - uses: actions/setup-python@v5
               with:
                   python-version: "3.12"
             - name: Install Zensical
               run: pip install zensical
 
-            - name: Compute the next version from the latest release
+            - name: Bump the version and commit it
               id: version
-              env:
-                  GH_TOKEN: ${{ github.token }}
               run: |
                   set -euo pipefail
-                  latest="$(gh release view --json tagName -q .tagName 2>/dev/null || true)"
-                  if [ -z "$latest" ]; then
-                      version="0.1.0"
-                  else
-                      IFS=. read -r major minor patch <<< "${latest#v}"
-                      version="$major.$minor.$((patch + 1))"
-                  fi
+                  manifest=.claude-plugin/plugin.json
+                  IFS=. read -r major minor patch <<< "$(jq -r .version "$manifest")"
+                  version="$major.$minor.$((patch + 1))"
                   echo "version=$version" >> "$GITHUB_OUTPUT"
+
+                  jq --indent 4 ".version = \"$version\"" "$manifest" > "$manifest.tmp"
+                  mv "$manifest.tmp" "$manifest"
+
+                  git config user.name "${{ github.actor }}"
+                  git config user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
+                  git commit -am "Release v$version [skip ci]"
+                  git push
 
             # Stage content into a child docs/ dir — Zensical (like MkDocs) can't use docs_dir ".".
             # README.md becomes the site index.
@@ -85,7 +93,7 @@ jobs:
               run: |
                   gh release create "v${{ steps.version.outputs.version }}" \
                     "dist/agent-skills-handbook-${{ steps.version.outputs.version }}.zip" \
-                    --target "$GITHUB_SHA" \
+                    --target "$(git rev-parse HEAD)" \
                     --generate-notes
 
             - uses: actions/configure-pages@v5
