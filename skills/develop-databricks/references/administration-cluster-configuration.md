@@ -3,7 +3,7 @@
 > **What this is.** Enabling Databricks Container Services (DCS) so a cluster can run a custom Docker
 > image, and injecting a secret into a cluster. From a Databricks example notebook; the workspace URL
 > and bearer token are placeholders — read a token from a secret scope, see
-> [credential-management](./credential-management.md).
+> [administration-credential-management](./administration-credential-management.md).
 
 ## Enable Databricks Container Services
 
@@ -25,7 +25,7 @@ curl --request PATCH "https://<workspace-url>/api/2.0/workspace-conf" \
 ## Inject a secret as a cluster Spark config or environment variable
 
 Do not paste a credential into a cluster config. Store it in a secret scope
-([credential-management](./credential-management.md)) and reference it. Databricks resolves the
+([administration-credential-management](./administration-credential-management.md)) and reference it. Databricks resolves the
 reference at cluster start and redacts it from notebook output and driver logs. The reference format
 is `{{secrets/<scope-name>/<secret-name>}}`.
 

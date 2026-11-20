@@ -10,7 +10,7 @@ DESCRIBE HISTORY main.default.my_table;
 SELECT * FROM main.default.my_table VERSION AS OF 28;
 ```
 
-See [table-migration-and-lifecycle](./table-migration-and-lifecycle.md) for retention limits and
+See [uc-table-migration-and-lifecycle](./uc-table-migration-and-lifecycle.md) for retention limits and
 `RESTORE`.
 
 ## Inventory catalogs from `information_schema`

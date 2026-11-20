@@ -30,65 +30,74 @@ description: 'Use for any Databricks work — pipelines, deployment, or the plat
 
 - [sdp-python-api.md](./references/sdp-python-api.md) — the `dp` decorators and functions, the
   DLT→SDP mapping, and the coding rules the framework enforces.
-- [expectations-policy.md](./references/expectations-policy.md) — `expect_all` vs `_or_drop` vs
-  `_or_fail` and what each decides, the presence/value two-block structure, and the four
-  anti-patterns an audit found in 21 real expectation blocks.
-- [event-log-and-observability.md](./references/event-log-and-observability.md) — the event log's
-  schema, the aggregation rules that stop you over-counting failures, publishing vs the TVF, where
-  `print()` actually goes on serverless, and the row-provenance vs run-execution boundary.
-- [operations-and-refresh.md](./references/operations-and-refresh.md) — full refresh vs selective
-  full refresh vs a new flow generation, retry and cluster-shutdown settings, `ignoreChanges` vs
-  `skipChangeCommits`, table layout, and a four-check triage playbook.
-- [auto-cdc.md](./references/auto-cdc.md) — AUTO CDC / AUTO CDC FROM SNAPSHOT (Databricks-only;
-  replaces APPLY CHANGES).
-- [pipelines-editor-and-publishing.md](./references/pipelines-editor-and-publishing.md) — the
-  Lakeflow Pipelines Editor, publishing modes, and where the bundle layer sits.
+- [sdp-expectations-policy.md](./references/sdp-expectations-policy.md) — `expect_all` vs
+  `_or_drop` vs `_or_fail` and what each decides, the presence/value two-block structure, and the
+  four anti-patterns an audit found in 21 real expectation blocks.
+- [sdp-event-log-and-observability.md](./references/sdp-event-log-and-observability.md) — the
+  event log's schema, the aggregation rules that stop you over-counting failures, publishing vs
+  the TVF, where `print()` actually goes on serverless, and the row-provenance vs run-execution
+  boundary.
+- [sdp-operations-and-refresh.md](./references/sdp-operations-and-refresh.md) — full refresh vs
+  selective full refresh vs a new flow generation, retry and cluster-shutdown settings,
+  `ignoreChanges` vs `skipChangeCommits`, table layout, and a four-check triage playbook.
+- [sdp-auto-cdc.md](./references/sdp-auto-cdc.md) — AUTO CDC / AUTO CDC FROM SNAPSHOT
+  (Databricks-only; replaces APPLY CHANGES).
+- [sdp-pipelines-editor-and-publishing.md](./references/sdp-pipelines-editor-and-publishing.md) —
+  the Lakeflow Pipelines Editor, publishing modes, and where the bundle layer sits.
+- [sdp-custom-data-sources.md](./references/sdp-custom-data-sources.md) — a custom
+  `DataSourceStreamReader` for one offset cursor per key, why it beats an offsets table, the
+  reader-only limit inside SDP, and the hole a success-filtered high-water mark leaves.
 - [sdp-vs-databricks-and-naming.md](./references/sdp-vs-databricks-and-naming.md) — the
-  Apache-vs-Databricks feature split, the DLT/DAB/APPLY CHANGES renames, reading an older codebase,
-  and pyright stubs for the runtime API.
+  Apache-vs-Databricks feature split, the DLT/DAB/APPLY CHANGES renames, reading an older
+  codebase, and pyright stubs for the runtime API.
 
 **Deploying a bundle**
 
-- [targets-and-modes.md](./references/targets-and-modes.md) — targets, `mode: development` vs
-  `production`, name prefixing and `normalizePrefix`, presets, per-target overrides, `include`
+- [dab-targets-and-modes.md](./references/dab-targets-and-modes.md) — targets, `mode: development`
+  vs `production`, name prefixing and `normalizePrefix`, presets, per-target overrides, `include`
   scoping, the per-user-sandbox trap, and an admin-only target for shared infrastructure.
-- [variables-and-interpolation.md](./references/variables-and-interpolation.md) — `variables:`,
-  required vars, the `${var.*}` / `${bundle.*}` / `${workspace.*}` / `${resources.*.status.*}`
-  namespaces, what can't be interpolated, map deep-merge vs array replace.
-- [resources-and-deploy.md](./references/resources-and-deploy.md) — the directory shape and the root
-  `databricks.yml` skeleton, resource types and key uniqueness, pipeline `configuration` /
-  `environment`, `job_runs` post-deploy, synced-table bin-packing, the wheel artifact, and the
-  deploy/validate/run commands.
-- [lakebase.md](./references/lakebase.md) — `postgres_projects` and `postgres_branches` field by
-  field, the PostgREST-style Data API, the role/`authenticator` grant trap, the SDK raw API client,
-  and where the declarative surface stops and a script takes over.
+- [dab-variables-and-interpolation.md](./references/dab-variables-and-interpolation.md) —
+  `variables:`, required vars, the `${var.*}` / `${bundle.*}` / `${workspace.*}` /
+  `${resources.*.status.*}` namespaces, what can't be interpolated, map deep-merge vs array
+  replace.
+- [dab-resources-and-deploy.md](./references/dab-resources-and-deploy.md) — the directory shape
+  and the root `databricks.yml` skeleton, resource types and key uniqueness, pipeline
+  `configuration` / `environment`, `job_runs` post-deploy, synced-table bin-packing, the wheel
+  artifact, and the deploy/validate/run commands.
+- [dab-lakebase.md](./references/dab-lakebase.md) — `postgres_projects` and `postgres_branches`
+  field by field, the PostgREST-style Data API, the role/`authenticator` grant trap, the SDK raw
+  API client, and where the declarative surface stops and a script takes over.
 
 **Unity Catalog and tables**
 
-- [unity-catalog-introspection.md](./references/unity-catalog-introspection.md) — the two
-  information schemas, privilege-aware filtering, the view catalog, the performance notes, and
-  worked inventory queries.
-- [table-migration-and-lifecycle.md](./references/table-migration-and-lifecycle.md) — `SYNC` in
-  depth (external vs managed, status codes, the non-ASCII comment trap), `DEEP` vs `SHALLOW CLONE`,
-  and time-travel retention with the `RESTORE` streaming caveat.
-- [catalog-administration.md](./references/catalog-administration.md) — create a catalog on a
-  managed location and grant, snapshot a schema, bulk-migrate a Hive schema.
-- [test-queries.md](./references/test-queries.md) — time travel, a combined catalog inventory query,
-  and a destructive privilege probe.
+- [uc-introspection.md](./references/uc-introspection.md) — the two information schemas,
+  privilege-aware filtering, the view catalog, the performance notes, and worked inventory
+  queries.
+- [uc-table-migration-and-lifecycle.md](./references/uc-table-migration-and-lifecycle.md) — `SYNC`
+  in depth (external vs managed, status codes, the non-ASCII comment trap), `DEEP` vs
+  `SHALLOW CLONE`, and time-travel retention with the `RESTORE` streaming caveat.
+- [uc-catalog-administration.md](./references/uc-catalog-administration.md) — create a catalog on
+  a managed location and grant, snapshot a schema, bulk-migrate a Hive schema.
+- [uc-test-queries.md](./references/uc-test-queries.md) — time travel, a combined catalog
+  inventory query, and a destructive privilege probe.
+- [uc-monitoring-and-profiling.md](./references/uc-monitoring-and-profiling.md) — Lakehouse
+  Monitoring / data profiling on the tables a pipeline publishes: why it attaches to the table and
+  not the pipeline, the MV and 4 TB limits, and how it divides work with expectations.
 
 **Connecting, computing and serving**
 
-- [external-sources.md](./references/external-sources.md) — Neo4j, Azure SQL (service principal),
-  Cosmos DB merged into Delta, and legacy ADLS/Blob mounts.
-- [file-operations.md](./references/file-operations.md) — copy files with shell, copy a notebook
-  with the Workspace export/import API.
-- [cluster-configuration.md](./references/cluster-configuration.md) — enable Databricks Container
-  Services, inject a secret as a Spark config or environment variable.
-- [credential-management.md](./references/credential-management.md) — secret scopes, put/get/ACL,
-  redaction, Key Vault-backed scopes.
-- [model-serving.md](./references/model-serving.md) — log a custom MLflow `pyfunc` with a typed
-  signature, register it, call the serving endpoint.
-- [llm-analysis.md](./references/llm-analysis.md) — call Azure OpenAI with LangChain from secrets,
+- [integration-external-sources.md](./references/integration-external-sources.md) — Neo4j, Azure
+  SQL (service principal), Cosmos DB merged into Delta, and legacy ADLS/Blob mounts.
+- [administration-file-operations.md](./references/administration-file-operations.md) — copy files
+  with shell, copy a notebook with the Workspace export/import API.
+- [administration-cluster-configuration.md](./references/administration-cluster-configuration.md)
+  — enable Databricks Container Services, inject a secret as a Spark config or environment
+  variable.
+- [administration-credential-management.md](./references/administration-credential-management.md)
+  — secret scopes, put/get/ACL, redaction, Key Vault-backed scopes.
+- [mlflow-model-serving.md](./references/mlflow-model-serving.md) — log a custom MLflow `pyfunc`
+  with a typed signature, register it, call the serving endpoint.
+- [analysis-llm.md](./references/analysis-llm.md) — call Azure OpenAI with LangChain from secrets,
   count tokens, drive a structured prompt.
 
 ## The copy-versus-refresh trap
@@ -136,6 +145,19 @@ way looks healthy and serves stale data forever. Choose the statement that match
 11. **Set retry behaviour in every target, not just `dev`.** With `pipelines.maxFlowRetryAttempts`
     and `pipelines.numUpdateRetryAttempts` set only in development, nobody can state how many times
     a production flow retries before failing.
+12. **A flow cannot read its own target, and renaming does not help.** The graph is built from the
+    DataFrame lineage of what the function *returns*, so a qualified `spark.table("x")` joined into
+    the returned frame is still an edge — `LIVE.` versus a published name is irrelevant. Reach for
+    AUTO CDC, a stateful operator, or a table the pipeline does not own.
+13. **There is no pipeline-level rollback.** Each flow commits independently, so there is no
+    consistent cut to return to, and `RESTORE` on a streaming table leaves the checkpoint ahead of
+    the data — a permanent hole. A `DEEP CLONE` taken *before* a deploy is the only real rollback.
+14. **You cannot `DELETE` or `MERGE` a pipeline-managed table from outside.** Unity Catalog blocks
+    it, so every fix for bad rows goes through the pipeline definition. Classify the cause first: a
+    full refresh reproduces replayed duplicates faithfully.
+15. **A layout change needs a full refresh; `DROP TABLE` does not reset the checkpoint.**
+    `partition_cols` and clustering are mutually exclusive, and the tracked layout survives a manual
+    drop — so the conflict error returns on the next incremental update.
 
 ### Deploying a bundle
 
@@ -171,9 +193,22 @@ way looks healthy and serves stale data forever. Choose the statement that match
     decide how long a change can go undetected — a weekly cron with no retries means one transient
     failure costs a full week. `max_concurrent_runs: 2` is needed if a task pauses its own job's
     schedule.
-11. **Some Lakebase objects cannot be declared at all.** A role created via the `postgres_roles`
-    resource **cannot be granted to `authenticator`**, so a script must create it in-database. Put
-    that script behind a `job_runs` post-deploy hook rather than running it by hand.
+11. **An undeclared field is not at its default — it is owned by whoever last used the UI.** A job
+    was found running `max_concurrent_runs: 4` that appears nowhere in the bundle; it had been
+    clicked months earlier and drifting ever since. Declare the settings that matter explicitly,
+    even at the default value, so a deploy has the authority to put them back.
+12. **A static wheel version makes serverless serve stale code.** Serverless caches its environment
+    by dependency set, so an unchanged version string never invalidates it and a successful deploy
+    changes nothing that runs. That is what `dynamic_version: true` is for — and it patches only
+    *local* wheels built during the deploy, never one already in a volume or an index.
+13. **Secrets do not reach a serverless pipeline through `{{secrets/...}}`.** That form resolves in
+    a cluster `spark_conf`, which a serverless pipeline cannot have; in the pipeline
+    `configuration:` block `spark.conf.get()` returns the literal braces with no error. Pass scope
+    and key *names* as configuration and call `dbutils.secrets.get()` at module scope.
+14. **Some Lakebase objects resist declaration.** Granting a role `TO authenticator` fails while
+    that role carries `DATABRICKS_SUPERUSER` membership — strip it by omitting `membership_roles:`
+    in the bundle, not by editing the UI, which the next deploy overwrites. Where a step genuinely
+    must be imperative, put it behind a `job_runs` post-deploy hook rather than running it by hand.
 
 ### Using the platform
 
@@ -199,54 +234,78 @@ way looks healthy and serves stale data forever. Choose the statement that match
 |---|---|---|
 | "Expected a streaming source" / "expected batch" | Streaming table with a batch read, or the reverse | sdp-python-api |
 | UDF fails with no `spark` / `dbutils` | Config read on the executor — move it to module scope | sdp-python-api |
-| Violating rows appear in the published table | Bare `expect_all` is advisory by design | expectations-policy |
-| Quality metrics show ~100% violations | A presence rule copied downstream and applied to an optional column | expectations-policy |
-| Violation count permanently inflated | A rule treats every retry as a failure | expectations-policy |
-| An expectation can only ever pass | Self-referential check (hash vs recomputation of itself, same row) | expectations-policy |
-| Event-log query over-counts failures | Data-quality counters are cumulative — `MAX` per flow, then `SUM` | event-log-and-observability |
-| Event-log query returns nulls | `details` is a variant: `details:path`, while struct fields use `origin.field` | event-log-and-observability |
-| `print()` output nowhere to be found | Serverless: no Spark UI, no Spark logs, no executor route | event-log-and-observability |
-| Pipeline update fails after a schema cleanup | The published event log or its schema was dropped | event-log-and-observability |
-| Need to refresh one table, UI only offers all | Selective full refresh via SDK/CLI — no UI click-path | operations-and-refresh |
-| Full refresh didn't recover the missing data | The source no longer offers it; refresh resets your position only | operations-and-refresh |
-| Changing a streaming source forces a full refresh | Checkpoint is bound to the source; expect duplicates on an unkeyed target | operations-and-refresh |
-| Downstream table duplicates on every run | `ignoreChanges` against a full-recompute upstream | operations-and-refresh |
-| Streaming dedup state grows without bound | `dropDuplicates` with no watermark | operations-and-refresh |
-| Many small files / most rows in one partition | `partition_cols` on a mostly-null column, or partitioning while writing single-partition | operations-and-refresh |
-| Nobody knows how many times prod retries | Retry settings only configured in `dev` | operations-and-refresh |
-| Need CDC / SCD semantics | `dp.create_auto_cdc_flow` (Databricks-only) | auto-cdc |
-| `LIVE.` prefix silently ignored | Default publishing mode — use unqualified names | pipelines-editor-and-publishing |
+| Violating rows appear in the published table | Bare `expect_all` is advisory by design | sdp-expectations-policy |
+| Quality metrics show ~100% violations | A presence rule copied downstream and applied to an optional column | sdp-expectations-policy |
+| Violation count permanently inflated | A rule treats every retry as a failure | sdp-expectations-policy |
+| An expectation can only ever pass | Self-referential check (hash vs recomputation of itself, same row) | sdp-expectations-policy |
+| Event-log query over-counts failures | Data-quality counters are cumulative — `MAX` per flow, then `SUM` | sdp-event-log-and-observability |
+| Event-log query returns nulls | `details` is a variant: `details:path`, while struct fields use `origin.field` | sdp-event-log-and-observability |
+| `print()` output nowhere to be found | Serverless: no Spark UI, no Spark logs, no executor route | sdp-event-log-and-observability |
+| Pipeline update fails after a schema cleanup | The published event log or its schema was dropped | sdp-event-log-and-observability |
+| Need to refresh one table, UI only offers all | Selective full refresh via SDK/CLI — no UI click-path | sdp-operations-and-refresh |
+| Full refresh didn't recover the missing data | The source no longer offers it; refresh resets your position only | sdp-operations-and-refresh |
+| Changing a streaming source forces a full refresh | Checkpoint is bound to the source; expect duplicates on an unkeyed target | sdp-operations-and-refresh |
+| Downstream table duplicates on every run | `ignoreChanges` against a full-recompute upstream | sdp-operations-and-refresh |
+| Streaming dedup state grows without bound | `dropDuplicates` with no watermark | sdp-operations-and-refresh |
+| Many small files / most rows in one partition | `partition_cols` on a mostly-null column, or partitioning while writing single-partition | sdp-operations-and-refresh |
+| Nobody knows how many times prod retries | Retry settings only configured in `dev` | sdp-operations-and-refresh |
+| Need CDC / SCD semantics | `dp.create_auto_cdc_flow` (Databricks-only) | sdp-auto-cdc |
+| `LIVE.` prefix silently ignored | Default publishing mode — use unqualified names | sdp-pipelines-editor-and-publishing |
 | Pyright flags a kwarg that works at runtime | OSS wheel ships narrower signatures — add a local stub tree | sdp-vs-databricks-and-naming |
+| Cyclic-dependency error on a table that reads itself | The graph follows the *returned* plan's lineage; renaming to a published name changes nothing | sdp-python-api |
+| `spark.catalog.tableExists` missing inside a pipeline | The Python catalog API is not wired up in pipeline context — query `information_schema` | sdp-python-api |
+| Analysis/graph resolution times out | A blocking network call in a dataset function body, which runs at analysis time | sdp-python-api |
+| Event-log timestamps are an hour out | The column is UTC — `from_utc_timestamp` with a named zone, or set `spark.sql.session.timeZone` | sdp-event-log-and-observability |
+| `ORDER BY timestamp` returns events out of order | Timestamps tie inside a millisecond — order by `sequence.data_plane_id.seq_no`, after checking `instance` is uniform | sdp-event-log-and-observability |
+| Microbatch detail missing from the pipelines UI | `level: METRICS` events are table-only; `stream_progress` never appears in the UI | sdp-event-log-and-observability |
+| `readStream` on the event log fails | The `event_log()` TVF is batch-only — stream a UC view over it instead | sdp-event-log-and-observability |
+| Need a custom metric per flow | No API writes custom events; use a named always-true expectation as a counter | sdp-event-log-and-observability |
+| Violating rows need inspecting, not counting | `_or_drop` leaves only a count — add a quarantine table and make the split null-safe | sdp-expectations-policy |
+| Repointing a join's static side didn't exclude bad rows | A left join yields NULL rather than dropping — use an inner join or an explicit filter | sdp-expectations-policy |
+| `CANNOT_UPDATE_PARTITION_COLUMNS` persists after `DROP TABLE` | The flow checkpoint still records the old layout — full refresh | sdp-operations-and-refresh |
+| `maxFilesPerTrigger=1` no longer yields small microbatches | `cluster_by_auto` on the producer compacts files away | sdp-operations-and-refresh |
+| One table failed and everything refreshed | The job task's `max_retries`, not the pipeline — recovery scope is hardcoded to refresh-all | sdp-operations-and-refresh |
+| Per-key API cursors need an offsets table | They don't — a custom `DataSourceStreamReader` keeps offsets in the checkpoint | sdp-custom-data-sources |
+| Need drift detection, not per-run quality | Lakehouse Monitoring attaches to the published table, not the pipeline | uc-monitoring-and-profiling |
 
 **Bundles**
 
 | Symptom | Likely cause / fix | Reference |
 |---|---|---|
-| `Duplicate key <k>` at validate | Two resources (any types) share a key — rename one | resources-and-deploy |
-| `invalid character "{" in host name` | `${var.*}` in `workspace.host` — use a literal | variables-and-interpolation |
-| Endpoint deployed as `dev_<user>_<name>` | Dev-mode prefix; deploy the endpoint from a prod target | targets-and-modes |
-| Per-target job lost its tasks | Array replace — restate the full `tasks:` list | variables-and-interpolation |
-| `CATALOG_DOES_NOT_EXIST` on synced table | `synced_table_id` is a literal 3-part name; point `catalog` at a real catalog | resources-and-deploy |
-| `field data_synchronization_status not found` | Use `...status.pipeline_id` for autoscaling synced tables | resources-and-deploy |
-| Post-deploy run needed | `job_runs` resource (CLI ≥ 1.7.0 + direct engine); `scripts` are manual only | resources-and-deploy |
-| "Required variable" never raised | A no-default var is enforced only when the selected target references it | variables-and-interpolation |
-| Production reads a developer's schema | A variable default no target overrode | targets-and-modes |
-| A "shared, near-production" target behaves per-user | It carries `mode: development` | targets-and-modes |
-| Endpoint exists in one environment, missing in another | It is workspace-global and only one target declares it | targets-and-modes |
-| Synced table deployed before its Lakebase branch | Branches are referenced by literal path — no bundle ordering | lakebase |
-| Data API returns 403 for a granted principal | Role not granted `TO authenticator`, or created via `postgres_roles` | lakebase |
-| Data API 403 only on newly added tables | `GRANT … ON ALL TABLES` is a snapshot; re-run or set default privileges | lakebase |
-| New schema invisible over the Data API | It is not in the Data API's `db_schemas` list | lakebase |
+| `Duplicate key <k>` at validate | Two resources (any types) share a key — rename one | dab-resources-and-deploy |
+| `invalid character "{" in host name` | `${var.*}` in `workspace.host` — use a literal | dab-variables-and-interpolation |
+| Endpoint deployed as `dev_<user>_<name>` | Dev-mode prefix; deploy the endpoint from a prod target | dab-targets-and-modes |
+| Per-target job lost its tasks | Array replace — restate the full `tasks:` list | dab-variables-and-interpolation |
+| `CATALOG_DOES_NOT_EXIST` on synced table | `synced_table_id` is a literal 3-part name; point `catalog` at a real catalog | dab-resources-and-deploy |
+| `field data_synchronization_status not found` | Use `...status.pipeline_id` for autoscaling synced tables | dab-resources-and-deploy |
+| Post-deploy run needed | `job_runs` resource (CLI ≥ 1.7.0 + direct engine); `scripts` are manual only | dab-resources-and-deploy |
+| "Required variable" never raised | A no-default var is enforced only when the selected target references it | dab-variables-and-interpolation |
+| Production reads a developer's schema | A variable default no target overrode | dab-targets-and-modes |
+| A "shared, near-production" target behaves per-user | It carries `mode: development` | dab-targets-and-modes |
+| Endpoint exists in one environment, missing in another | It is workspace-global and only one target declares it | dab-targets-and-modes |
+| Synced table deployed before its Lakebase branch | Branches are referenced by literal path — no bundle ordering | dab-lakebase |
+| Data API returns 403 for a granted principal | Role not granted `TO authenticator`, or created via `postgres_roles` | dab-lakebase |
+| Data API 403 only on newly added tables | `GRANT … ON ALL TABLES` is a snapshot; re-run or set default privileges | dab-lakebase |
+| New schema invisible over the Data API | It is not in the Data API's `db_schemas` list | dab-lakebase |
+| `42501 permission denied to set role` over the Data API | `authenticator` was never granted the role | dab-lakebase |
+| `permission denied to grant role` when fixing the above | The role carries `DATABRICKS_SUPERUSER` — omit `membership_roles:` in the bundle | dab-lakebase |
+| Row-level security ignored for API traffic | A superuser role carries `BYPASSRLS` | dab-lakebase |
+| Serverless runs old code after a successful deploy | The environment cache never invalidated — `dynamic_version: true` | dab-resources-and-deploy |
+| `spark.conf.get()` returns a literal `{{secrets/...}}` | The reference form is classic-compute only | administration-credential-management |
+| `dbutils.secrets.get()` fails only in prod | The run-as service principal lacks `READ` on the scope | administration-credential-management |
+| A setting in the workspace isn't in the bundle | It was set in the UI and is drifting — declare it explicitly | dab-targets-and-modes |
+| Needed to exclude a file from a pipeline `glob` | There is no `exclude` key — narrow the include or move the file | dab-resources-and-deploy |
+| `environment_version` ignored on a notebook task | Not applicable via bundle YAML for `notebook_task` | dab-resources-and-deploy |
 
 **Platform**
 
 | Symptom | Likely cause / fix | Reference |
 |---|---|---|
-| An inventory query misses tables | The caller lacks grants, or the tables live in `hive_metastore` — run as a metastore admin and query `hive_metastore` separately | unity-catalog-introspection |
+| An inventory query misses tables | The caller lacks grants, or the tables live in `hive_metastore` — run as a metastore admin and query `hive_metastore` separately | uc-introspection |
 | A nightly CTAS serves stale data | `IF NOT EXISTS` skipped the existing target — use `CREATE OR REPLACE` or `MERGE` | — |
-| `SYNC` reports nothing to do | The source is a managed, not external, table — use `DEEP CLONE` | table-migration-and-lifecycle |
-| `VERSION AS OF` fails for an old version | The version fell outside the retention window | table-migration-and-lifecycle |
-| A secret prints as `[REDACTED]` | Expected — redaction is on the printed value, not on the read | credential-management |
+| `SYNC` reports nothing to do | The source is a managed, not external, table — use `DEEP CLONE` | uc-table-migration-and-lifecycle |
+| `VERSION AS OF` fails for an old version | The version fell outside the retention window | uc-table-migration-and-lifecycle |
+| A secret prints as `[REDACTED]` | Expected — redaction is on the printed value, not on the read | administration-credential-management |
 
 ## Commands
 

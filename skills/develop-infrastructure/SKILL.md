@@ -108,6 +108,11 @@ plane can be redeployed alone. Only the Terraform plane holds state.
 | PSRule passes locally, fails/absent in CI | Bicep needs `AZURE_BICEP_FILE_EXPANSION`; Terraform needs a plan-JSON artifact + `Azure.ExpandTerraformPlan` | azure-devops-pipelines |
 | Storage account name invalid / truncated oddly | 24-char limit with no hyphens — `substring(name, 0, min(length(name), 24))` | plane-architecture-and-naming |
 | A resource silently disappeared | it was deleted from the Terraform config — deletion *is* destruction | terraform-unity-catalog |
+| Account groups vanish after deploying another environment | an account-scoped resource owned by two per-environment states — split `account/` from `workspace/` | terraform-unity-catalog |
+| `prevent_destroy = var.x` fails: "Variables may not be used here" | `lifecycle` is evaluated before the variable graph — use literal `true`, and `force_destroy` for the variable-driven case | terraform-unity-catalog |
+| A rename produces a hard plan error on a protected resource | `prevent_destroy` blocks replacements too, not just deletes | terraform-unity-catalog |
+| `No Result Found to Publish` from PSRule | the analysis task failed under `continueOnError` and produced nothing — debug the task before it | azure-devops-pipelines |
+| PSRule results file exists but `total="0"` | the Terraform plan was never expanded — check the plan JSON root keys and the convention | azure-devops-pipelines |
 
 ## Commands
 

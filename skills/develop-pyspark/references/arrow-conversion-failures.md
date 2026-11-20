@@ -207,3 +207,4 @@ about.
 | `ModuleNotFoundError` after a `mapInArrow` rewrite | First-party wheel import doesn't resolve on the executor | Import inside the UDF, inline the helper, or leave that stage on `mapInPandas` |
 | Lowering `maxRecordsPerBatch` reduced but didn't stop it | It is a mitigation, not the cause | Find the real cause; re-test the cap afterwards |
 | `maxRecordsPerBatch` changed nothing at all | Stage is a scalar `@udf`, not an Arrow API | Convert to `mapInPandas`/`mapInArrow`, or remove the misleading setting |
+| `maxRecordsPerBatch` changed nothing, and the stage *is* an Arrow API | The code reassembles the batches — `pd.concat(list(pdfs))` — so the cap no longer bounds anything resident | Work batch by batch, or shrink the payload; see [pandas-udfs-and-memory.md](./pandas-udfs-and-memory.md) |

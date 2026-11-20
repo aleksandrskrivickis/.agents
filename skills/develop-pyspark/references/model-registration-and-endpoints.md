@@ -180,7 +180,7 @@ else:
 |---|---|---|
 | `workload_size: Small/Medium/Large` | Preset concurrency bands (`Small` serves 0–4 concurrent callers) | Simple cases; still widely referenced in docs and examples |
 | `min_provisioned_concurrency` / `max_provisioned_concurrency` | Explicit scale-out floor and ceiling | When you need a warm floor, or a ceiling the presets don't offer |
-| `scale_to_zero_enabled` | Idles to zero replicas | Cost-saving on bursty, latency-tolerant workloads |
+| `scale_to_zero_enabled` | Idles to zero replicas | Cost-saving on bursty, latency-tolerant workloads — but it also **lowers the max request size**, so it changes your batch budget, not only your latency. See [model-serving-and-batching.md](./model-serving-and-batching.md) |
 
 - **The floor is the latency decision.** `scale_to_zero_enabled=False` with
   `min_provisioned_concurrency=4` means no scale-from-zero cold start — which for a Spark stage that

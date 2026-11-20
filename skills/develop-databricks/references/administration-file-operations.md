@@ -45,7 +45,7 @@ imp.raise_for_status()
 
 ## Notes
 
-- Read the token from a secret scope ([credential-management](./credential-management.md)); never
+- Read the token from a secret scope ([administration-credential-management](./administration-credential-management.md)); never
   hardcode a `dapi…` PAT.
 - `export`/`import` handle one notebook. For a whole tree use the CLI:
   `databricks workspace export-dir <src> <local>` then `import-dir <local> <dest>`.

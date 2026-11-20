@@ -476,6 +476,33 @@ rule:
   report on failure.
 - `failTaskOnMissingResultsFile: true` catches the silent case where the analyser produced nothing —
   the most common PSRule-in-CI failure mode.
+- **`continueOnError` relocates the error, which is the cost of the idiom above.** When the analysis
+  task fails for a reason unrelated to rule results — a wrong `inputPath`, say — it produces no XML
+  and reports success, and the build fails later at
+  `No Result Found to Publish '…/psrule-terraform-results.xml'`. The message names the publish task,
+  which is not the broken one. Read it as *"the task before this produced nothing"* and debug
+  upstream. `[repo]`
+- **A results file that exists but reports `total="0"` is a different failure from a missing one**,
+  and `failTaskOnMissingResultsFile` does not catch it: the analyser ran and matched nothing. For
+  Terraform that almost always means the plan was never expanded into resources. Three things have
+  to be true together, and the convention fires only when all of them are:
+  1. the input is genuine `terraform show -json` output, carrying `format_version` and
+     `terraform_version` **at the root** — those are the markers the convention keys on;
+  2. `AZURE_TERRAFORM_PLAN_FILE_EXPANSION: true` is set in the options file;
+  3. the `Azure.ExpandTerraformPlan` convention is actually loaded.
+
+  The tell that it did **not** fire is
+  `Target object 'terraform-plan/terraform-plan.json' has not been processed because no matching
+  rules were found` — PSRule saw one file-shaped object rather than the Azure resources inside it.
+- **Two dead ends worth not repeating.** `ps-rule-assert@2`'s `inputType` accepts only `repository`
+  or `inputPath` — nothing else is valid. And `input.fileObjects` / `input.objectPath` are **not**
+  PSRule settings; adding them interferes rather than helping. Pass `inputPath` as an absolute
+  `$(System.DefaultWorkingDirectory)/terraform-plan/`, because the task does not resolve a relative
+  path the way neighbouring tasks do. `[repo]`
+
+  > **Status.** The source session worked through all of the above and the expansion still had not
+  > fired when it ended, so treat this as a diagnostic checklist rather than a known fix — which is
+  > also why the repo's own TODO names Checkov/Terrascan/tfsec for the Terraform half. `[?]`
 - `NUnit3` output turns rule failures into the ADO **Tests** tab, with history and trend.
 - The repo's own TODO records that the Terraform half is fragile and names
   **Checkov / Terrascan / tfsec** as alternatives. PSRule's Azure rules are strongest on ARM/Bicep;

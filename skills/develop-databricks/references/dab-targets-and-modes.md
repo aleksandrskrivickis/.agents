@@ -103,6 +103,29 @@ include:
   (`.../Individual/${workspace.current_user.short_name}/...`) keeps dev copies isolated.
 - `workspace.host` is literal (see variables reference — it can't take `${var.*}`).
 
+## An undeclared field is not at its default — it is owned by the UI
+
+A field absent from `databricks.yml` and `resources/*.yml` is not sitting at the platform default.
+It is sitting at whatever the last person to open the Workflows UI clicked, and it has been drifting
+from source ever since.
+
+The source project found a job running with `max_concurrent_runs: 4` that appears nowhere in the
+bundle. It had been set by hand months earlier. The same job's `max_retries` had been raised the
+same way, which was the actual cause of a "one table failed and the whole pipeline refreshed
+everything" incident — see
+[sdp-operations-and-refresh.md](./sdp-operations-and-refresh.md) → *Two retry layers*. Neither value
+was visible from the repository, so neither was reviewable, and no deploy corrected them. `[repo]`
+
+> **Declare the field explicitly, even at its default value.** `max_concurrent_runs: 1` in the
+> bundle is not noise — it is what gives a deploy the authority to put the setting back. An
+> undeclared field has no owner; a declared one is owned by the review that merged it.
+
+This is the deployment sibling of two rules already in this file: *a default that production does
+not override reaches production*, and *configuration set only in `dev` leaves every other target on
+an unrecorded platform default*. All three are the same failure — a value that governs behaviour
+while living somewhere nobody reads. The audit question that catches all three: for each setting
+that matters, can you name where its value comes from without opening the workspace?
+
 ## An admin-only target for shared infrastructure
 
 Some resources are not per-environment: a Lakebase project, the branches every environment forks
@@ -137,7 +160,7 @@ targets:
             job_runs:                            # fires once per `bundle deploy -t shared`
                 embedding-model-registration:
                     job_id: ${resources.jobs.register-embedding-model.id}
-            postgres_projects: { ... }           # see lakebase.md
+            postgres_projects: { ... }           # see dab-lakebase.md
             postgres_branches: { ... }
 ```
 

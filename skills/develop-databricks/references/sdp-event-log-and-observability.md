@@ -21,11 +21,61 @@ monitoring UI. Most pipelines reinvent a fraction of it badly before discovering
 
 Every `expect_all` constraint you declare reports itself here **by name**. Metrics are emitted
 regardless of policy, so warn-only expectations still produce full pass/fail counts — see
-[expectations-policy.md](./expectations-policy.md).
+[sdp-expectations-policy.md](./sdp-expectations-policy.md).
 
 > **`details` is a VARIANT/JSON column.** Struct fields use a dot (`origin.update_id`); paths inside
 > `details` use a colon (`details:flow_progress.status`). Mixing the two is the most common reason a
 > first event-log query returns nulls.
+
+> **`timestamp` is stored UTC.** Every run you triage against wall-clock time is silently off by
+> your offset, and in a DST-observing zone it is off by a different amount depending on the month.
+> Wrap it per query — `from_utc_timestamp(timestamp, 'Europe/London')`, a **named zone** rather than
+> a fixed `+01:00`, so the GMT/BST switch handles itself — or set
+> `spark.conf.set("spark.sql.session.timeZone", "Europe/London")` once at the top of the notebook so
+> every timestamp renders locally. Per-query conversion makes a shared query self-contained; the
+> session setting is less error-prone if you debug the event log often. `[repo]`
+
+### Event types beyond `flow_progress`
+
+| `event_type` | Granularity | Notes |
+|---|---|---|
+| `flow_progress` | Flow lifecycle transitions | Carries `FlowMetrics` and `DataQualityMetrics`; the workhorse |
+| `stream_progress` | **Once per microbatch**, per streaming flow | The Structured Streaming progress object, shaped like `StreamingQueryListener` output. A couple of fields (`numInputRows`) are dropped relative to vanilla Structured Streaming. Join back via `origin.batch_id`, which is unique within a flow |
+| `flow_definition` | Per flow, per update | `input_datasets` / `output_dataset` — the only reliable source of **dependency** order |
+| `update_progress` | Per update | `state`, which separates `FAILED` from `CANCELED` |
+| `cluster_resources`, `autoscale` | Per cluster event | **Classic compute only** — never populated on serverless `[docs]` |
+
+> **`level = 'METRICS'` events are stored in the table but never shown in the pipelines UI.** This
+> is the entire explanation for "the UI shows nothing" — high-volume per-batch events land at that
+> level by design. If you want microbatch detail you must query the table; there is no UI path to
+> it. `[docs]`
+
+### Ordering events: `sequence` is the right key, but not the obvious way
+
+`timestamp` ties. Several events routinely land in the same millisecond, so a `ORDER BY timestamp`
+on a `QUEUED` batch returns an arbitrary order. The `sequence` struct exists for this — and it holds
+**two unrelated numbering spaces**:
+
+- `sequence.control_plane_seq_no` — events emitted by the control plane.
+- `sequence.data_plane_id.{instance, seq_no}` — events emitted by the data plane, which is where
+  `flow_progress` lives.
+
+They are not comparable to each other, and `data_plane_id.seq_no` is monotonic **only within one
+`instance`**. So confirm the instance is uniform before trusting a bare sort:
+
+```sql
+SELECT sequence.data_plane_id.instance, COUNT(*)
+FROM event_log WHERE event_type = 'flow_progress' GROUP BY 1;
+```
+
+One row back → `ORDER BY sequence.data_plane_id.seq_no DESC` is a correct total order, and strictly
+better than `timestamp` because it breaks millisecond ties in true emission order. More than one row
+(restarts, or a query widened past `flow_progress`) → fall back to
+`ORDER BY timestamp DESC, sequence.data_plane_id.seq_no DESC`.
+
+> **It orders events, not tables.** Independent flows interleave their status transitions, so the
+> sequence faithfully reconstructs *what happened when* and is **not** a topological sort of the
+> graph. For dependency order use `flow_definition`'s `input_datasets`/`output_dataset`. `[docs]`
 
 ## Publish it as a table; don't rely on the TVF
 
@@ -55,6 +105,14 @@ Two constraints come attached:
 Retention is asymmetric in your favour: the UI and Pipelines API retain 60 days of updates, but
 older updates **remain in the event-log table**, which has no stated expiry.
 
+One more reason the published form wins: **the TVF is batch-only — you cannot `readStream` from
+it.** To build a live monitor you need a Unity Catalog view over the event log and you stream the
+view. Two things then break that worked in batch, and both are full-relation operations streaming
+forbids: the global `ORDER BY`, and the `ORDER BY … LIMIT 1` subquery that picked the latest
+`update_id`. The streaming-friendly substitute is to move `update_id` into the grouping key and
+aggregate over a watermarked tumbling `window(timestamp, '1 hour')`, which keeps runs separated
+without needing to know which is newest. `[docs]`
+
 ## Aggregation rules queries must respect
 
 Getting these wrong **silently over-counts failures**, which is worse than an error:
@@ -65,6 +123,17 @@ Getting these wrong **silently over-counts failures**, which is worse than an er
 3. **Expectation metrics may arrive on `RUNNING` events**, not only on `COMPLETED`. Don't filter to
    `COMPLETED` and assume you have the totals.
 4. **Exclude the sentinel** `origin.flow_name = 'pipelines.flowTimeMetrics.missingFlowName'`.
+5. **`MAX` is only safe because the run is triggered.** The counter is cumulative within a triggered
+   run, so the peak equals the final total. For a **continuous** flow there is no final total — use
+   `MAX_BY(num_output_rows, timestamp)` to get the last reported value instead. `[deduced]`
+6. **"Latest update" is not "latest successful update".** Pinning to the `update_id` of the most
+   recent event shows that run's truth including its `SKIPPED` and `EXCLUDED` flows, which is
+   usually what you want for *how did the last run go* — but it is not a health summary. Say which
+   one you meant in the query name.
+
+Flow names arrive fully qualified (`catalog.schema.table`). `substring_index(origin.flow_name, '.', -1)`
+shortens them and is safe on unqualified names too — with `-1` it returns the whole string when
+there is no dot, rather than failing.
 
 ```sql
 WITH q AS (
@@ -113,6 +182,42 @@ compute lifetime rather than to the data it describes, and scales with partition
 `logger.info` inside a per-partition loop fires once per key per partition.
 
 **Treat stdout as ephemeral developer convenience.** It is not the observability mechanism.
+
+## Event hooks are reactive, and cannot carry your own events
+
+Custom monitoring belongs in event hooks rather than dataset definitions — but "belongs in" is not
+"is possible in", and the limits decide designs:
+
+- **There is no API to write a custom event into the event log.** `on_event_hook` fires when events
+  the platform *already* persists are written; you can inspect, forward or alert on them, never
+  inject a new event type or add fields to an existing one. `[docs]`
+- Hooks fire only for events whose `maturity_level` is `STABLE`.
+- They run **asynchronously from the update but serially with each other** — one slow hook blocks
+  the rest — and **Databricks does not guarantee every hook fires before compute is torn down**.
+  That last point disqualifies hooks as a durable audit mechanism: the hook you most want to fire is
+  the one at the end of the run.
+
+So hooks are the right place for *egress* (Slack, PagerDuty, a webhook, appending to another Delta
+table for external monitoring) and the wrong place for anything that must not be lost.
+
+### Always-true expectations as named counters
+
+Because every expectation reports itself by name into
+`details:flow_progress.data_quality.expectations` with `passed_records`/`failed_records`, an
+expectation that cannot fail is a queryable per-flow counter:
+
+```python
+@dp.expect("processed_iso_de", "1=1")          # not a quality rule — a metric
+```
+
+This is the closest thing to a custom metric that flows naturally into `flow_progress`, and it is a
+legitimate technique. Note the overlap with
+[sdp-expectations-policy.md](./sdp-expectations-policy.md) → anti-pattern 4, *an expectation that
+can only ever pass*: that is an anti-pattern when it was **reached by accident** (a self-referential
+check someone believed was testing something) and a deliberate instrument when it was **chosen as a
+counter**. The difference is entirely in whether anyone decided. Name it so the next reader can
+tell — a `processed_`/`count_` prefix and a comment saying it is a metric — because a reviewer
+applying the anti-pattern rule mechanically will otherwise delete it.
 
 ## Row provenance belongs in the table; run execution belongs in the event log
 
@@ -185,8 +290,8 @@ and gives you a cheap, incremental observability table — including the trick f
 
 ## Related
 
-- [expectations-policy.md](./expectations-policy.md) — what lands in `data_quality` and why the
+- [sdp-expectations-policy.md](./sdp-expectations-policy.md) — what lands in `data_quality` and why the
   policy decides whether it means anything.
-- [operations-and-refresh.md](./operations-and-refresh.md) — using the event log to triage a run.
-- [resources-and-deploy.md](./resources-and-deploy.md) — the `event_log:` block in the pipeline
+- [sdp-operations-and-refresh.md](./sdp-operations-and-refresh.md) — using the event log to triage a run.
+- [dab-resources-and-deploy.md](./dab-resources-and-deploy.md) — the `event_log:` block in the pipeline
   resource.

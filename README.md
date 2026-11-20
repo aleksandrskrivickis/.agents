@@ -40,6 +40,7 @@ editor open.
 **Engineering practice**
 
 - [write-technical](skills/write-technical/SKILL.md) — write every output in ASD-STE100 Simplified Technical English; once active, it governs all prose, not only the task that triggered it.
+- [develop-mcp](skills/develop-mcp/SKILL.md) — MCP servers for a coding agent: config and environment expansion, keeping the credential out of the model's context, keychain and vault wrappers, OAuth versus static keys.
 - [obsidian-github-copilot](skills/obsidian-github-copilot/SKILL.md) — export VS Code Copilot chat sessions to Obsidian Markdown.
 - [obsidian-tags-generate](skills/obsidian-tags-generate/SKILL.md) — generate Obsidian note tags from the existing vault taxonomy.
 

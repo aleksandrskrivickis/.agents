@@ -16,7 +16,7 @@ semantics**, because that is where correct-looking operations destroy data or fa
 | **Selective full refresh** | Full-refreshes named tables only; others update normally | One stage's logic changed and the corpus is large |
 | **Refresh all / Validate** | Validate parses and plans without writing | Pre-deploy check |
 
-### Three things about full refresh that surprise people
+### Four things about full refresh that surprise people
 
 **1. A full refresh cannot recover data the source no longer offers.**
 
@@ -59,6 +59,37 @@ databricks pipelines start-update <pipeline-id> \
 
 Keep that as a checked-in, parameterised notebook or script. An operation you can only perform by
 remembering an SDK signature under pressure is an operation you will perform wrong.
+
+**4. There is no pipeline-level rollback to fall back on.**
+
+An update is **not one transaction across the graph** — each flow commits to its own target
+independently, so there is no consistent cut to return to. "Put the pipeline back to 14:00
+yesterday" is not an operation; the best you can reconstruct is a set of per-table versions that
+happened to be current at the same wall-clock moment. What you actually have:
+
+| Primitive | On a streaming table | On a materialized view |
+|---|---|---|
+| `RESTORE TABLE … TO VERSION AS OF n` | Restores the data and **leaves the checkpoint ahead of it** | Not supported `[?]` |
+| Full refresh | Recompute from source with *current* code | The only recompute path |
+| `DEEP CLONE` taken **before** the deploy | The real rollback | The real rollback |
+
+The checkpoint is the trap. `RESTORE` moves the Delta table back, but the flow still believes it
+consumed those offsets and will not re-emit them — leaving a **permanent hole**. Restore is only
+safe if you also reset the flow, at which point you are doing a full refresh anyway.
+
+So the strategy has to be *before*, not *after*:
+
+- `CREATE TABLE bak.x_<version> DEEP CLONE catalog.schema.x` for the tables you could not re-derive,
+  as a deploy step. Managed-table retention is not something to discover during an incident.
+- Set `pipelines.reset.allowed = false` on any table where reprocessing would be destructive — an
+  ingest table whose source has moved on, an append-only audit log. It makes the dangerous operation
+  refuse rather than succeed quietly.
+- To find *which* versions to target, the event log gives you the `update_id` boundaries; cross-
+  reference `DESCRIBE HISTORY` per table for the last commit before the bad update.
+
+The common case needs none of this: revert the code, redeploy the prior artifact, and
+selectively full-refresh the affected tables. Reach for the clone only when the source cannot
+re-derive the rows.
 
 ### Prefer a new flow over a full refresh
 
@@ -109,9 +140,41 @@ configuration:
 > retried before failing — the platform default is not recorded anywhere. If you set them in dev, set
 > them in prod too, even if to the same value as the default.
 
+### Two retry layers, and the one you are probably seeing
+
 Separately, the **job** wrapping a pipeline has its own `max_retries` and `max_concurrent_runs`;
 those are bundle-level and covered in
-[resources-and-deploy.md](./resources-and-deploy.md).
+[dab-resources-and-deploy.md](./dab-resources-and-deploy.md). The distinction matters more than it
+looks, because the two layers produce the same symptom and only one of them is configurable:
+
+- **The pipeline's own automatic recovery only handles infrastructure failures** — cluster startup,
+  credentials — not table or data logic errors. `[docs]`
+- **Its scope is hardcoded to `refresh all`.** There is no setting that gets you `scope=failed`; the
+  `pipeline_task` schema accepts only `pipeline_id` and `full_refresh`, with no retry surface at
+  all. Selective recovery means driving `start_update` yourself (above).
+- So **"one table failed and the whole pipeline refreshed everything" is almost always the job
+  task's `max_retries`** re-running the `pipeline_task`, which starts a fresh refresh-all update.
+  Pin it to `0` in the bundle and the behaviour stops. `[repo]`
+
+### `spark_conf` has three scopes, and serverless narrows them
+
+Spark properties can be set for the whole pipeline (the `configuration:` block above), for one of
+its compute resources, or for **an individual flow, materialized view or streaming table** via
+`spark_conf=` on the decorator — where the decorator wins over the pipeline. `[docs]`
+
+```python
+@dp.table(spark_conf={"spark.sql.execution.arrow.maxRecordsPerBatch": "5000"})
+def my_table(): ...
+```
+
+Set it at pipeline level when you want it everywhere; set it on the decorator when one flow needs a
+different batch size, trigger interval or shuffle width. The caveat is serverless: plain serverless
+notebooks and jobs expose only a short allow-list (timezone, ANSI mode, shuffle partitions), and
+`arrow.maxRecordsPerBatch` is not on it. SDP's decorator path is documented as a separate, broader
+mechanism — but a property that falls under the serverless restriction is dropped wherever you set
+it (`spark.driver.maxResultSize` is on record failing with `CONFIG_NOT_AVAILABLE`). Set it on the
+decorator, then **confirm it was honoured rather than silently dropped** before you build a memory
+budget on it. `[?]`
 
 ## `ignoreChanges` on a full-recompute upstream duplicates rows
 
@@ -161,13 +224,75 @@ table_properties = {
   pattern that is not there.
 - **`quality` is a tag you invent**, useful for a medallion convention and for filtering in a
   catalogue. It does nothing by itself.
-- **`partition_cols` vs `cluster_by_auto=True`:** pick one per table and know why. Partitioning by a
-  column that is null for most rows (a US-only state code, say) lands most rows in a single null
-  partition; partitioning while writing on a single partition reliably generates many small files.
-  Automatic clustering avoids both and is the better default for anything you aren't sure about.
+- **`partition_cols` vs `cluster_by_auto=True`:** pick one per table and know why. They are
+  **mutually exclusive** in Delta, so this is a layout commitment, not a tuning knob. Partitioning
+  by a column that is null for most rows (a US-only state code, say) lands most rows in a single
+  null partition; partitioning while writing on a single partition reliably generates many small
+  files. Automatic clustering avoids both and is the better default for anything you aren't sure
+  about — but see the compaction interaction below before putting it on a table something else
+  streams from.
+
+### Changing the layout needs a full refresh — `DROP TABLE` will not do it
+
+```
+[CANNOT_UPDATE_PARTITION_COLUMNS] Declared partitioning jurisdiction_country, jurisdiction_state,
+portal_name conflicts with existing table partitioning . Please delete the table or change the
+declared partitioning to match its partitions.
+```
+
+The error tells you to delete the table. **Deleting the table does not fix it.** A streaming table
+is pipeline-managed, and a manual `DROP TABLE` does not reset the flow's checkpoint — the tracked
+layout (here: empty partitioning, because the table used to be a materialized view with
+`cluster_by`) survives, so the next incremental update re-materialises with the old layout and the
+same error comes back. `[repo]`
+
+Only a **full refresh** clears the checkpoint and rebuilds with the declared `partition_cols`. And
+because full-refreshing a table restarts its version history, every checkpoint-bearing consumer
+downstream has to be refreshed too — so **a full-pipeline refresh is the safe default** for a layout
+change, not a selective one.
+
+> **Clustering on the producer defeats microbatch sizing on the consumer.** `cluster_by_auto=True`
+> triggers auto-compaction that merges files. A downstream flow reading that table with
+> `maxFilesPerTrigger=1` can then no longer get small microbatches — there are no small files left
+> to hand it. If a consumer's memory budget depends on tiny batches, the producer cannot be
+> auto-clustered; partition it instead. This is the specific, non-obvious case behind the general
+> warning below. `[repo]`
 - Don't mix auto-optimize with a stage whose correctness depends on a one-file-per-window commit
   cadence — compaction breaks the 1:1 mapping. See
   [throughput-and-partitioning](../../develop-pyspark/references/throughput-and-partitioning.md).
+
+## You cannot DML your way out of bad rows
+
+Before planning any fix, know the constraint that removes most of the obvious options: **streaming
+tables and materialized views are pipeline-managed, so an external `DELETE` or `MERGE` against them
+is blocked in Unity Catalog.** "Just delete the duplicates" is not available. Every real fix goes
+through the pipeline definition. `[repo]`
+
+So when a run produces millions of rows it should not have, the first job is classification, because
+each cause has a *signature* and a different fix:
+
+| Cause | Signature | Fix |
+|---|---|---|
+| **Source replay** — checkpoint reset, an accidental full refresh on a still-retained source, Auto Loader re-listing after a path change | Exact row copies; count is a clean multiple of the original | A full refresh **faithfully reproduces them**. Dedupe at read time with `dropDuplicatesWithinWatermark`, or restructure the target as AUTO CDC keyed on the natural key with `sequence_by` on ingest time, which collapses repeats idempotently |
+| **Join fanout** — a lookup or dimension picked up duplicate keys, so 1:1 became 1:N | Duplication factor **varies by key** | Fix the code, full-refresh the table and everything downstream. The good case: the rows were never in the source, so recomputation genuinely removes them |
+| **CDC misconfiguration** — wrong `keys`, or `sequence_by` on a non-unique column | Updates landed as inserts | Fix the flow definition, then full refresh |
+
+The event log tells you which update did it; the spike lines up with a commit in
+`DESCRIBE HISTORY` on the target:
+
+```sql
+SELECT timestamp, origin.flow_name, origin.update_id,
+       details:flow_progress.metrics.num_output_rows
+FROM event_log(TABLE(catalog.schema.pipeline))
+WHERE event_type = 'flow_progress'
+ORDER BY timestamp DESC;
+```
+
+If bronze itself is contaminated and cannot be re-derived, the escape hatch is to materialise a
+clean copy outside the pipeline (`CREATE TABLE recovery.x AS SELECT DISTINCT … FROM bronze.x`),
+repoint bronze's source at it, and full refresh. It is ugly and it is sometimes the only option.
+**`DEEP CLONE` the affected tables before you refresh anything** — even contaminated, that is your
+only rollback if the refresh comes back wrong.
 
 ## A triage playbook for "the table looks wrong"
 
@@ -193,7 +318,7 @@ identical unless you already know the table was not rebuilt.
 
 Pair the playbook with the event log for the execution half — flow status, row counts and
 expectation counts per update — see
-[event-log-and-observability.md](./event-log-and-observability.md).
+[sdp-event-log-and-observability.md](./sdp-event-log-and-observability.md).
 
 ## Pre-deploy and pre-refresh checklist
 
@@ -210,9 +335,9 @@ expectation counts per update — see
 
 ## Related
 
-- [expectations-policy.md](./expectations-policy.md) — whether your quality rules can stop anything.
-- [event-log-and-observability.md](./event-log-and-observability.md) — the triage substrate.
-- [resources-and-deploy.md](./resources-and-deploy.md) — schedules, job retries, and the
+- [sdp-expectations-policy.md](./sdp-expectations-policy.md) — whether your quality rules can stop anything.
+- [sdp-event-log-and-observability.md](./sdp-event-log-and-observability.md) — the triage substrate.
+- [dab-resources-and-deploy.md](./dab-resources-and-deploy.md) — schedules, job retries, and the
   `pipelines:` resource block.
-- [targets-and-modes.md](./targets-and-modes.md) — why per-target configuration must be set
+- [dab-targets-and-modes.md](./dab-targets-and-modes.md) — why per-target configuration must be set
   everywhere, not only in `dev`.

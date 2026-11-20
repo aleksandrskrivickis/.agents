@@ -83,6 +83,8 @@ description: 'Use when writing PySpark transforms on Databricks: mapInPandas, ap
 | Endpoint name not found, whole update fails | Endpoint resolved on the driver at module scope and doesn't exist | model-registration-and-endpoints |
 | Registration churns a new version every deploy | Tag versions with a config signature and skip when it matches | model-registration-and-endpoints |
 | Cold-start latency on the first micro-batch | `scale_to_zero_enabled=False` + a `min_provisioned_concurrency` floor | model-registration-and-endpoints |
+| `400 Max request size exceeded for a scale to zero endpoint` | Scale-to-zero caps request size below a provisioned endpoint; the cause hides under a `StreamingQueryException` | model-serving-and-batching |
+| `UDF_PYSPARK_USER_CODE_ERROR.MEMORY_LIMIT_SERVERLESS` | The 1,024 MB serverless UDF sandbox — and lazy iteration can't fix it if the function must sort | pandas-udfs-and-memory |
 | Embeddings all look plausible but scores are wrong | Chunk exceeds the model's context window — silent truncation | chunking-and-embedding-fit |
 | Chunks cut mid-sentence | A bare-number regex ranked above `\n\n` in the separator ladder | chunking-and-embedding-fit |
 | Many chunks at exactly `chunk_size` | `hard_cut_rate` high — the ladder found no separator | chunking-and-embedding-fit |

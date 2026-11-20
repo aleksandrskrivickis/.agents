@@ -26,6 +26,39 @@ Pair or aggregate on light keys only, then join the big column back afterward. C
 `content_markdown` column through `applyInPandasWithState` caused UDF OOMs; the fix split the
 stateful pairing (ids/version only) from the markdown, which is joined back in a later `@dp.table`.
 
+### Why this is the only fix, not the convenient one
+
+The failure is specific and worth recognising by name:
+
+```
+[UDF_PYSPARK_USER_CODE_ERROR.MEMORY_LIMIT_SERVERLESS]
+  … in FlatMapGroupsInPandasWithState pair_versions(...)
+```
+
+The serverless Python sandbox gives each UDF a hard **1,024 MB**. `[repo]` The instinct on seeing
+this is to consume the iterator lazily, because `pdfs` is an iterator and the code was buffering it:
+
+```python
+pdf = pd.concat(list(pdfs), ignore_index=True)   # the whole group, resident
+```
+
+**That instinct cannot work here.** Spark does not guarantee row order within a group, so a function
+that needs ordered rows — version pairing, sessionisation, anything with a sequence — *must* sort,
+and sorting needs the whole group. **Carrying a heavy column through `applyInPandasWithState` and
+bounding memory are incompatible**: there is no lazy formulation, only a smaller payload. Hence the
+rule above, which is structural rather than a tuning choice.
+
+What the group actually costs once concatenated: roughly **three resident copies** of its text — the
+`concat`, then `sort_values`, then the filter, each materialising a new frame — plus pandas holding
+every string as a Python object with its own overhead, plus whatever the state store holds per group.
+
+> **And the batch cap does nothing about it.** `maxRecordsPerBatch` bounds the **Arrow batch**
+> handed to the function. Code that reassembles those batches into one DataFrame has stepped past
+> the Arrow boundary, and the cap it was set to enforce no longer applies to anything. A `20`-row
+> cap in front of a `pd.concat(list(pdfs))` is a setting that cannot act — which is worse than no
+> setting, because it reads as a memory budget. See
+> [arrow-conversion-failures.md](./arrow-conversion-failures.md).
+
 ## The all-NaN → ChunkedArray schema trap
 
 When you shape an API payload with `json_normalize(...).reindex(columns=SCHEMA_COLS)`, columns the

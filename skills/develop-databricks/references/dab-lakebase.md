@@ -5,7 +5,7 @@
 > through an API gateway, plus a Databricks example notebook for the raw-API-client section.
 > `[docs]` marks documented Databricks behaviour; `[deduced]` an inference.
 
-[resources-and-deploy.md](./resources-and-deploy.md) covers the `postgres_synced_tables` resource and
+[dab-resources-and-deploy.md](./dab-resources-and-deploy.md) covers the `postgres_synced_tables` resource and
 its bin-packing. This file covers what sits **under** it (the project and branch the tables live in)
 and what sits **over** it (the Data API that serves them), because that is where the
 bundle-declarable surface stops and a hand-run script takes over.
@@ -30,7 +30,7 @@ postgres_projects          the Lakebase instance          ← declared in the bu
 
 ```yaml
 targets:
-    shared:                                   # admin-only target — see targets-and-modes.md
+    shared:                                   # admin-only target — see dab-targets-and-modes.md
         mode: production
         resources:
             postgres_projects:
@@ -166,7 +166,7 @@ schema_identifier = sql.Identifier(schema)
 with connection.cursor() as cursor:
     cursor.execute("CREATE EXTENSION IF NOT EXISTS databricks_auth;")
 
-    # databricks_create_role is REQUIRED here — see the trap below.
+    # The in-database path; see "Why the grant to authenticator fails" below.
     with contextlib.suppress(psycopg.errors.DuplicateObject):
         cursor.execute("SELECT databricks_create_role(%s, 'SERVICE_PRINCIPAL');",
                        (service_principal_id,))
@@ -182,11 +182,71 @@ with connection.cursor() as cursor:
                    .format(s=schema_identifier, r=role))
 ```
 
-> **The trap, and it costs a day if you hit it.** A role created through the **management API**
-> (the `postgres_roles` bundle resource, or the REST equivalent) **cannot be granted to
-> `authenticator`.** Only a role created inside the database by `databricks_create_role(...)` can.
-> So the one piece of this you would most want to declare in the bundle is the piece that must be
-> imperative. `[repo]`
+### Why the grant to `authenticator` fails — and it is not the resource type
+
+This is worth getting exactly right, because the obvious diagnosis is wrong and the correct fix is
+*more* declarative, not less.
+
+**The mechanism.** The Data API is PostgREST-compatible: every request connects as the single
+Postgres role `authenticator`, which holds `LOGIN` and no privileges, and then runs
+`SET ROLE "<service-principal-uuid>"` to assume the caller's identity. Postgres permits that only if
+`authenticator` has been **granted** the role. Without the grant:
+
+```
+42501  permission denied to set role "d84db70a-f866-4b10-820c-adffd0cd6800"
+```
+
+**The actual blocker.** Running the obvious remedy then fails too:
+
+```
+permission denied to grant role "d84db70a-f866-4b10-820c-adffd0cd6800"
+```
+
+because the service-principal role carries **`DATABRICKS_SUPERUSER` membership**, and Postgres will
+not grant an elevated role to `authenticator` — the ability to assume a role cannot be granted for
+accounts with elevated privileges. The role's *provenance* is not what blocks it; its *privilege
+level* is. `[repo]`
+
+**The fix, in the bundle.** Omitting `membership_roles:` from the `postgres_roles` resource is
+documented to strip `DATABRICKS_SUPERUSER` when the role is adopted — so delete the block rather
+than editing the role in the UI, or the next `bundle deploy` puts the membership straight back:
+
+```yaml
+postgres_roles:
+    api-reader:
+        role_id: apim-sharedapim-sit-001
+        postgres_role: d84db70a-f866-4b10-820c-adffd0cd6800
+        replace_existing: true        # adopt a role that was created in the UI
+        # membership_roles:  <- REMOVED. Its absence is what strips DATABRICKS_SUPERUSER.
+```
+
+Then redeploy, confirm the membership is gone, and run the grants. Look up the real role id with
+`databricks postgres list-roles projects/<project-id>/branches/<branch>`.
+
+**Verify in the database, not in the UI**, because the UI's role list shows the declared intent
+rather than the resulting Postgres state:
+
+```sql
+SELECT r.rolname AS granted_role
+FROM pg_auth_members m
+JOIN pg_roles r ON r.oid = m.roleid
+JOIN pg_roles u ON u.oid = m.member
+WHERE u.rolname = 'authenticator';
+```
+
+> **An earlier reading of this failure** — recorded in the source project and repeated in community
+> threads — concluded that a role created through the management API (the `postgres_roles` resource)
+> can *never* be granted to `authenticator`, and that `databricks_create_role(...)` inside the
+> database is the only path. The superuser-membership explanation above accounts for the same error
+> codes and has a declarative fix, so prefer it. The in-database path still works and remains the
+> safe fallback if stripping the membership does not clear the grant — but try the bundle change
+> first, because it is the difference between a declared role and a hand-run script. `[?]`
+
+**Check `authenticator` itself while you are there.** By design it should hold `LOGIN` and nothing
+else. If it has been declared with `DATABRICKS_SUPERUSER`, strip that too — and not only for
+tidiness: `databricks_superuser` carries **`BYPASSRLS`**, so any row-level security you add later is
+**silently ignored for every request that arrives over the Data API**. A security control that is
+present, configured and inert is worse than one you know you do not have. `[repo]`
 
 Other details that matter:
 
@@ -238,7 +298,7 @@ targets:
 - **Order is pipeline → sync → grant.** A grant against a table the sync has not created yet
   succeeds vacuously (`ON ALL TABLES` matches nothing) and leaves the API returning 403s.
 - `job_runs` fires it once per `bundle deploy` — see
-  [resources-and-deploy.md](./resources-and-deploy.md) for the CLI version it requires.
+  [dab-resources-and-deploy.md](./dab-resources-and-deploy.md) for the CLI version it requires.
 - Pass the service principal id as a **bundle variable**, not a literal in the notebook. The source
   project had it as a widget default, which is how a principal id for one environment ends up
   granted in another.
@@ -293,17 +353,19 @@ If an API-management layer sits in front, the gateway holds the consumer-facing 
    ordering).
 3. Data API enablement scripted with `try get / except NotFound / create`, and `db_schemas` listing
    every schema you intend to expose.
-4. Roles created with `databricks_create_role`, **not** the management API, and granted `TO
-   authenticator`.
-5. Grants re-run after adding tables, or default privileges set.
-6. Service principal id passed as a bundle variable.
-7. Grant task ordered after the sync task.
-8. Synced column types checked for anything the API must filter on.
-9. Exported OpenAPI spec in version control.
+4. The API role carries **no `DATABRICKS_SUPERUSER` membership** (no `membership_roles:` block) and
+   is granted `TO authenticator`; verified with `pg_auth_members`, not the UI.
+5. `authenticator` itself holds `LOGIN` only — no superuser, so `BYPASSRLS` does not void row-level
+   security for API traffic.
+6. Grants re-run after adding tables, or default privileges set.
+7. Service principal id passed as a bundle variable.
+8. Grant task ordered after the sync task.
+9. Synced column types checked for anything the API must filter on.
+10. Exported OpenAPI spec in version control.
 
 ## Related
 
-- [resources-and-deploy.md](./resources-and-deploy.md) — `postgres_synced_tables`, bin-packing,
+- [dab-resources-and-deploy.md](./dab-resources-and-deploy.md) — `postgres_synced_tables`, bin-packing,
   `job_runs`.
-- [targets-and-modes.md](./targets-and-modes.md) — why shared infrastructure wants its own
+- [dab-targets-and-modes.md](./dab-targets-and-modes.md) — why shared infrastructure wants its own
   admin-only target.

@@ -31,6 +31,27 @@ overlap a fast one.
 
 ## Byte-aware batching under the request-size limit
 
+> **A scale-to-zero endpoint enforces a tighter cap than a provisioned one.** The same batch size
+> that works against a warm provisioned endpoint fails against scale-to-zero, and the message says
+> so explicitly:
+>
+> ```
+> 400 Client Error: Bad Request … {"error_code":"Bad request.","message":"Max request size
+> exceeded for a scale to zero endpoint. Please reduce the request size or use an endpoint
+> without scale to zero."}
+> ```
+>
+> So `scale_to_zero_enabled` is a **payload** decision as well as the latency decision described in
+> [model-registration-and-endpoints.md](./model-registration-and-endpoints.md) — size the budget
+> below for the endpoint you are actually calling, and re-test after flipping that flag.
+>
+> Two things make this expensive to diagnose. The cause sits four layers down —
+> `StreamingQueryException` → `PythonException` → `HTTPError`, after four task retries — so the
+> stack trace does not read as a sizing problem at all. And the endpoint **also rejects requests
+> while it is waking up**, which looks identical. That makes a plain retry of the same batch the
+> wrong reflex: retry by **splitting**, falling back to sending items individually, so a genuine
+> size rejection converges instead of looping. `[repo]`
+
 The endpoint caps request size (here a conservative **8 MB** budget under a 32 MB hard limit). The
 limit is on **encoded bytes**, which multi-byte characters inflate — count `len(text.encode())`, not
 `len(text)`. Grow a batch until it reaches the row cap **or** the next text would exceed the byte

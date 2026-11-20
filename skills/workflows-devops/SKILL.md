@@ -74,6 +74,20 @@ az repos policy build create \
 - Keep ruff `continueOnError: true` while the tree has pre-existing findings; drop it to gate. Say
   *in a comment* how many findings remain, so "advisory" reads as a tracked state rather than a
   permanent one.
+- **`continueOnError: true` on a task that *produces* an artifact relocates its failure.** The
+  advisory pattern above is correct for a task whose only output is a verdict. It is a trap on a task
+  whose output something downstream consumes: the task fails, reports success, writes nothing, and
+  the build fails later in the consumer. A real instance — a static-analysis stage with a wrong
+  input path produced no results file, and the build failed at
+  `No Result Found to Publish '…/results.xml'`, naming the publish task rather than the broken one.
+  Half an hour went into the publish step before anyone looked upstream. `[repo]`
+
+  The rule: a producing task either matters, or its consumer must tolerate absence **explicitly**.
+  Where you need both — finish the analysis, publish the report, then gate — pair it with
+  `failTaskOnMissingResultsFile: true` so an empty run fails at the right place, and remember that
+  a results file which exists but contains **zero** results is a third state neither flag catches.
+  See [develop-infrastructure](../develop-infrastructure/references/azure-devops-pipelines.md) for the
+  PSRule-specific version of this.
 - JVM-dependent integration tests: install a JDK or let them skip (see
   [the harness reference](../test-python/references/notebook-harness.md)).
 - **Credentialled tests belong in their own stage**, gated on branch or on a variable group being

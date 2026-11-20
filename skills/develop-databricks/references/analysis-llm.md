@@ -29,7 +29,7 @@ llm = AzureChatOpenAI(
 
 > The original notebook also had a second client built from **literal** base and key strings. Delete
 > that form — read every value from a secret scope
-> ([credential-management](./credential-management.md)).
+> ([administration-credential-management](./administration-credential-management.md)).
 
 ## A structured analysis function, with token counting
 

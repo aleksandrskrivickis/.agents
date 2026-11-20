@@ -403,6 +403,102 @@ resource "databricks_mws_ncc_private_endpoint_rule" "storage" {
   to manipulate storage account via access connector"* captures the design tension: with the access
   connector plus NCC, the hand-built storage private endpoint may be redundant. Decide one path.
 
+## `prevent_destroy` versus `force_destroy`
+
+`lifecycle { prevent_destroy = true }` is the Terraform primitive for "never delete this", and it
+behaves unlike every other argument in the file:
+
+1. **It must be a literal boolean.** `prevent_destroy = var.protect` fails with *"Variables may not
+   be used here"* — Terraform evaluates `lifecycle` before the variable graph is built. `[docs]`
+2. **It cannot go on a `module` block.** Writing it there protects nothing; push it down onto the
+   resources inside the module. For the catalog case that means `databricks_catalog` and
+   `databricks_external_location` inside `./modules/catalog`, not `module.catalogs`.
+3. **It blocks any plan that would destroy the resource — including a replacement.** An ordinary
+   attribute change that forces replacement (renaming `name`, for instance) becomes a hard plan
+   error, and the only way forward is to remove the flag, apply, and put it back.
+4. **The `count` toggle workaround defeats itself.** Two resource blocks, one protected and one not,
+   switched by `count = var.protect ? 1 : 0`, looks like variable-driven protection — but flipping
+   the flag on an existing resource forces destroy-and-recreate, which is exactly what you were
+   preventing, unless you `terraform state mv` between them.
+
+So the per-environment protection you actually want comes from **`force_destroy`**, which *is* a
+normal, variable-driven argument on `databricks_catalog`, `databricks_external_location` and
+`azurerm_storage_container`. Drive it from `var.deploymentType` rather than hardcoding `false`, and
+let the provider-side guard do the work — a catalog refuses to drop non-empty schemas when
+`force_destroy = false`.
+
+Reserve the literal `prevent_destroy` for the **irreplaceable singletons**, where the cost is not
+the resource but the cascade:
+
+| Protect | Why recreation hurts |
+|---|---|
+| `databricks_storage_credential` | Its id is referenced by **every** external location — replacing it cascades through all of them |
+| `azurerm_databricks_access_connector` | A new managed identity means re-granting the data role **and** re-approving the storage private endpoint |
+| `databricks_mws_network_connectivity_config` | Account-level and shared; recreating it breaks serverless connectivity for every bound workspace |
+| `databricks_mws_ncc_private_endpoint_rule`, `azapi_update_resource.approve_storage_pe` | Approval state on the storage account is manual to re-establish |
+| `azurerm_private_endpoint` | Recreation churns NICs and DNS records |
+
+**Do not protect** `module.grants`, `module.groups_workspace`, `module.workspace_folders`,
+`azurerm_role_assignment`, or `databricks_mws_ncc_binding` — those are cheap, idempotent glue, and
+protecting them only produces plan errors on routine changes. Accepting that unprotecting a
+singleton needs a code edit and a PR is the point, not a limitation.
+
+Where you want "no destroy in prod" as a *policy* rather than a per-resource flag, enforce it on the
+plan in CI (OPA/Conftest, or a `terraform show -json` assertion) instead of in HCL — that is also
+where [azure-devops-pipelines.md](./azure-devops-pipelines.md)'s preflight stage already sits.
+
+## Account-scoped resources break under per-environment state
+
+The per-environment state key is right, and account-level Databricks resources are a single
+physical object. Put those two facts together and you get a failure that reads like a platform bug:
+
+> **Account groups disappear after deploying a different environment.**
+
+`databricks_group_role` runs on `provider = databricks.account`, so the `(group_id, role)` pair it
+manages exists **once in the account**, not once per environment. With
+`<env>/<region>/<increment>/terraform.tfstate` giving sandbox and dev separate states, both believe
+they own it:
+
+```
+1. Deploy sandbox → state A records group_role(account_admin) for dbx-account-admins
+2. Deploy dev     → state B records the SAME physical role
+3. Refresh/apply sandbox → sees drift, or tries to recreate
+4. Destroy sandbox → removes the account_admin role that dev still depends on
+```
+
+`databricks_mws_permission_assignment` is a secondary risk: it targets one workspace, but it runs
+through the account provider, so both states independently track assignments for the same
+`principal_id`. `[repo]`
+
+**The contributing cause is a default nobody overrode.** The `groups` variable carried hardcoded
+Entra object IDs and group names in its `default`, and the pipeline's `terraformVariables` never
+passed a `-var="groups=..."` override — so every environment managed the same principals. That is
+the same failure class as the bundle rule *a default that production does not override reaches
+production* in
+[develop-databricks](../../develop-databricks/references/dab-targets-and-modes.md); it is worth
+recognising that it is not a Terraform problem but a configuration-ownership one.
+
+Two fixes, in order of preference:
+
+- **Split the root modules by scope.** An `account/` root with a **single shared state** owning
+  account-level concerns (group roles, NCC, metastore assignment), and a per-environment
+  `workspace/` root owning permission assignments, entitlements, catalogs and grants. The scope
+  boundary then matches the state boundary, which is the actual invariant.
+
+  ```
+  terraform/
+    account/      # one state, account-wide
+    workspace/    # one state per environment
+  ```
+
+- **Or gate the account-level resources** so exactly one environment owns them —
+  `count = var.manage_account_roles ? 1 : 0`, true in precisely one variable group. Cheaper, and it
+  leaves the ownership rule in a variable rather than in the directory layout, which is easier to
+  get wrong later.
+
+Either way, pass environment-specific group names and object IDs **in** rather than defaulting them,
+so a new environment cannot silently adopt another's principals.
+
 ## Module layout and standalone modules
 
 ```
@@ -457,7 +553,8 @@ Notes:
 - **Deleting Terraform code destroys infrastructure.** This is in the repo's own TODO list as a
   security concern. Mitigations actually in use: `force_destroy = false` by default, resource-group
   `CanNotDelete` locks (which block an accidental RG delete but *not* a Databricks-API-level catalog
-  delete), and plan review in the PR.
+  delete), and plan review in the PR. The fourth mitigation — `prevent_destroy` — has four
+  properties that all surprise people; see below.
 - `terraform plan -out=main.tfplan` then `terraform apply main.tfplan` — applying a **saved plan**
   rather than re-planning is what makes the approved change the applied change.
 - A local-dev helper (`terraform-flow.sh`: `init -upgrade` → `validate` → `plan` → `apply` → prompted

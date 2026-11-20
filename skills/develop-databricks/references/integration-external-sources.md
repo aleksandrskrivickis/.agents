@@ -3,7 +3,7 @@
 > **What this is.** Reading external systems into Spark on Databricks, one connector per section.
 > From Databricks example notebooks; every credential, endpoint and identifier below is a
 > placeholder, and secrets are read from a secret scope — see
-> [credential-management](./credential-management.md).
+> [administration-credential-management](./administration-credential-management.md).
 
 ## Neo4j
 

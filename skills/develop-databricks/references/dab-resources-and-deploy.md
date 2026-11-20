@@ -82,7 +82,7 @@ resources:
                 schema: ${var.schema}
                 name: event_log
             libraries:
-                - glob: {include: ../src/pipeline/**}   # glob in notebook source; renumbering files is safe
+                - glob: {include: ../src/pipeline/**}   # include ONLY — there is no `exclude` key
             configuration:                     # Spark confs read via spark.conf.get(...) in the source
                 deployed_git_commit: ${bundle.git.commit}
                 pipelines.numUpdateRetryAttempts: "0"
@@ -93,6 +93,12 @@ resources:
                     - ../dist/*.whl
 ```
 
+- **`glob` takes `include` and nothing else — there is no paired `exclude`.** That shapes the source
+  tree rather than the config: narrow the include (`transformations/**/*.py` over
+  `transformations/**`), use several specific includes instead of one broad one, move helpers and
+  work-in-progress into a folder no include matches, or list files explicitly when the set you want
+  is small. Glob negation is not standardised here the way `.gitignore` negation is. Renumbering
+  files inside a matched folder is still safe. `[?]`
 - **Runtime Python deps belong in `environment.dependencies`**, not `[project].dependencies` — the
   latter is cached during development and won't pick up changes. Mirror them into a dev dependency
   group only where local tests need them.
@@ -134,7 +140,7 @@ resources:
 ## Lakebase / Postgres synced tables (bin-packing)
 
 > The project and branch these tables live in, and the **Data API** that serves them over HTTP, are
-> covered in [lakebase.md](./lakebase.md) — including the trap that a role
+> covered in [dab-lakebase.md](./dab-lakebase.md) — including the trap that a role
 > created via `postgres_roles` cannot be granted to `authenticator`.
 
 ```yaml
@@ -185,6 +191,55 @@ artifacts:
 
 The bundle builds the wheel on deploy; reference it from `environment.dependencies` as `../dist/*.whl`
 alongside `--editable ${workspace.file_path}`.
+
+### `dynamic_version` exists because serverless caches your stale code
+
+This is the line worth understanding rather than copying. **Serverless keys its cached virtual
+environment off the dependency set.** If the wheel ships as `mypkg-0.0.1` on every deploy, the
+version string never changes, the cache never invalidates, and serverless keeps running yesterday's
+code — after a `bundle deploy` that reported success. That is the whole "why is it still pointing at
+the old version" class of bug, and nothing in the deploy output hints at it.
+
+`dynamic_version: true` patches the wheel's version from the `.whl` file's timestamp on each
+deploy, which breaks the cache. Four things attach to it:
+
+- **Only valid for `type: whl`**, and only for **local wheels uploaded as part of
+  `bundle deploy`** — the CLI has to be able to patch the file before upload. A wheel already
+  sitting in a UC volume, or pulled from a private index, never gets patched and the problem
+  returns. `[docs]`
+- Needs Databricks CLI **0.245.0+**. The `artifacts_dynamic_version` **preset** (CLI 0.256.0+)
+  turns it on for every artifact in the bundle; the default-python template enables it on the dev
+  target automatically.
+- **Scope it to dev and staging.** Production usually wants a real, traceable semver tied to a
+  release, not a timestamp — so prefer the per-artifact flag or a per-target preset over switching
+  it on everywhere.
+- **The one-line verification:** after a deploy, look at the uploaded wheel's filename in the
+  artifact path. The version suffix must change between deploys. Identical across deploys means the
+  wheel is not being built locally and the patch step is being skipped silently.
+
+### Where dependencies are pinned — three surfaces, three syntaxes
+
+There is no single versioning mechanism in a bundle, and the three surfaces behave differently
+enough that "which one am I on" is the first question:
+
+| Surface | Where | Applies to |
+|---|---|---|
+| `requirements*.txt` | project root | **Local development only.** Under the jobs-as-code template `uv` resolves these into `uv.lock`, which is the local reproducibility anchor — not the deployed one |
+| `libraries:` on a task | the job resource | **Classic compute.** Takes `pypi: {package: "shared-dq==0.3.1", repo: <index-url>}` for a private index, or `whl:` for a path |
+| `environments[].spec.dependencies` | the job or pipeline resource | **Serverless.** Pip-style requirement strings, or a wheel glob |
+
+Three traps across them:
+
+- **The DBFS root is dead for wheels** — storing library files there is deprecated and disabled by
+  default from DBR **15.1**. Wheels live in UC volumes or workspace files. `[docs]`
+- **`environment_version` is the serverless base image, not your package version** (`1`/`2`/`3`,
+  `4-scala-preview`). And it **cannot be applied through bundle YAML to a `notebook_task`** — a
+  known limitation that forces you into the notebook UI. It works for `spark_python_task` and
+  `python_wheel_task`. `[docs]`
+- **Nothing here locks transitive dependencies at deploy time.** `bundle deploy` ships config;
+  resolution happens at install on the cluster or serverless environment. `==` on your direct deps
+  still lets their transitives float. If you need real determinism, ship a self-contained built
+  wheel — or write down that you have accepted the float.
 
 ## Deploy / validate / run
 

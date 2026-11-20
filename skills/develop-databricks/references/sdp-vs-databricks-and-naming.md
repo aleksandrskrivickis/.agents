@@ -82,6 +82,6 @@ members even though they work at runtime. Fix it with a local stub tree on the p
 ## Related
 
 - [sdp-python-api.md](./sdp-python-api.md) — the `dp` surface itself, and the DLT→SDP mapping.
-- [pipelines-editor-and-publishing.md](./pipelines-editor-and-publishing.md) — the Pipelines Editor
+- [sdp-pipelines-editor-and-publishing.md](./sdp-pipelines-editor-and-publishing.md) — the Pipelines Editor
   and publishing modes, where the `LIVE.` rename lands in practice.
 - [test-python](../../test-python/SKILL.md) — testing the pipeline source files these stubs type.

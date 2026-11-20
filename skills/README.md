@@ -58,6 +58,7 @@ vendor-documented constraint, `[deduced]` for an inference, `[?]` for a guess wo
 ### Engineering practice
 
 - [write-technical](./write-technical/SKILL.md) — write every output in ASD-STE100 Simplified Technical English: short sentences, active voice, one meaning for each word. Once active, it governs all prose, not only the task that triggered it.
+- [develop-mcp](./develop-mcp/SKILL.md) — MCP servers for a coding agent: `.mcp.json` and environment expansion, getting a credential into a server without it reaching the model's context, keychain wrappers and secrets-manager run-wrappers, OAuth versus static keys, and sharing a config without sharing values.
 - [obsidian-github-copilot](./obsidian-github-copilot/SKILL.md) — export VS Code Copilot chat sessions to Obsidian Markdown.
 - [obsidian-tags-generate](./obsidian-tags-generate/SKILL.md) — generate Obsidian note tags from the existing vault taxonomy.
 

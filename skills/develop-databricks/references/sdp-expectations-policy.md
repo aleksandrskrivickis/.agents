@@ -157,6 +157,62 @@ circular and started guarding a contract. Two notes if you get there:
 - A hash computed in one stage and re-asserted in a *later* stage is a real check — same row, same
   stage is not.
 
+There is one deliberate exception to this rule, and it needs to be visible here or a reviewer will
+delete it: an **always-true expectation used as a named counter**
+(`@dp.expect("processed_iso_de", "1=1")`) is the only way to get a custom per-flow metric into the
+event log, because expectations report themselves by name with pass/fail counts. That is not this
+anti-pattern. The anti-pattern is a check that *looks* like it tests something; the counter is a
+check that openly does not. Keep them distinguishable by naming and a comment — see
+[sdp-event-log-and-observability.md](./sdp-event-log-and-observability.md) → *Always-true
+expectations as named counters*.
+
+## The fourth option: a quarantine table
+
+The three variants all decide what happens to a violating row *inside one table*. None of them
+keeps the row where you can look at it: `_or_drop` discards it and leaves a count in the event log,
+`_or_fail` stops the update, and advisory keeps it mixed in with valid rows. When the violation is
+something you need to **inspect** — documents of nine million characters that slow every downstream
+stage — the answer is a sibling table and a second flow:
+
+```python
+MAX_CONTENT_CHARS = 2_000_000
+
+# main flow: everything within bounds
+.filter(col("content_length").isNull() | (col("content_length") <= MAX_CONTENT_CHARS))
+
+# quarantine flow: the complement, same schema, same partitioning
+.filter(col("content_length") > MAX_CONTENT_CHARS)
+```
+
+This is cheap and it composes with the policies rather than replacing them — the main table keeps
+its expectation block; the quarantine table usually carries none, because its purpose is inspection,
+not enforcement. Four traps, all of which the source project hit in order:
+
+1. **The split must be exhaustive, and nulls are not free.** `length(x) > N` **excludes nulls**,
+   because a comparison against null is null, not false. So the complement is not `<= N` — it is
+   `isNull() OR <= N`. Write both filters next to each other and check that every row satisfies
+   exactly one, or rows silently land in neither table. `[repo]`
+2. **A left join driven by the streaming side does not drop missing rows — it yields NULL.** The
+   tempting shortcut is to repoint the static side at an already-filtered table. It does not
+   exclude anything: the join miss produces `content = NULL`, the row still gets appended, and it
+   now trips your warn-only presence expectations while remaining in the table. Exclusion needs an
+   **inner join or an explicit filter**, not a narrower source. `[repo]`
+3. **Adding the discriminator column leaves existing rows null.** If you compute `content_length`
+   upstream at ingest — which you should — the rows already in the table have `NULL` until that
+   table is full-refreshed. With a null length they pass the null-safe filter into the main table
+   and are **never quarantined**. Retroactive quarantine means a full refresh of the upstream table
+   and everything below it; say so when you ship the change rather than discovering it later.
+4. **Filter before the expensive work, not after.** Compute the discriminator at ingest and apply
+   the filter immediately after the join — before any hashing, chunking or wide select — so the main
+   flow does not pay to transform rows it is about to discard, and the quarantine flow only pays for
+   the rare oversized ones.
+
+> **On duplication.** Two standalone flows each repeat the join and dedup. The cheaper shape
+> materialises join → dedup → hash **once** and has both tables filter from that single result, at
+> the cost of reintroducing a shared upstream. Which is right depends on how heavy the join is; a
+> length-based split is cheap enough that the duplicated join is usually the whole cost. Decide it
+> deliberately — it is the same trade-off as anti-pattern 3 above.
+
 ## Where expectations cannot help
 
 - **A left join with a non-null expectation on the right side** flags rows rather than preventing
@@ -178,10 +234,12 @@ circular and started guarding a contract. Two notes if you get there:
 5. Is the block duplicated anywhere? If so, generate it from one place.
 6. If the policy is advisory, does a column carry the verdict for downstream consumers?
 7. Is there a completeness check somewhere, given that expectations cannot provide one?
+8. If a rule exists to *measure* rather than to gate, is that obvious from its name and a comment?
+9. If violating rows need inspecting rather than counting, should this be a quarantine table?
 
 ## Related
 
 - [sdp-python-api.md](./sdp-python-api.md) — the decorator/function surface and what is
   Databricks-only.
-- [operations-and-refresh.md](./operations-and-refresh.md) — reading the event log, where expectation
+- [sdp-operations-and-refresh.md](./sdp-operations-and-refresh.md) — reading the event log, where expectation
   metrics actually land.

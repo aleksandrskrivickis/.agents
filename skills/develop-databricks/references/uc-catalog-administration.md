@@ -88,4 +88,4 @@ display(status)
 ```
 
 `SYNC` upgrades external tables only; for status codes and the managed-table path see
-[table-migration-and-lifecycle](./table-migration-and-lifecycle.md).
+[uc-table-migration-and-lifecycle](./uc-table-migration-and-lifecycle.md).

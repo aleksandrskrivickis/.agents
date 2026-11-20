@@ -15,8 +15,8 @@ cosmetic.
 Version-control pipeline **source** in a Git folder, and pipeline **configuration** in the bundle.
 The bundle surface itself — targets and modes, variables, the `pipelines:` resource block and its
 `event_log:` / `configuration:` / `environment:` keys, `job_runs`, and the deploy gotchas — is in
-[resources-and-deploy.md](./resources-and-deploy.md), [targets-and-modes.md](./targets-and-modes.md)
-and [variables-and-interpolation.md](./variables-and-interpolation.md).
+[dab-resources-and-deploy.md](./dab-resources-and-deploy.md), [dab-targets-and-modes.md](./dab-targets-and-modes.md)
+and [dab-variables-and-interpolation.md](./dab-variables-and-interpolation.md).
 
 ## Lakeflow Pipelines Editor
 
@@ -52,7 +52,7 @@ pipelines publish it to the pipeline's configured catalog/schema.
 
 > Full treatment — the schema, the aggregation rules that stop you over-counting failures, publishing
 > vs the table-valued function, and where `print()` output actually goes on serverless — is in
-> [event-log-and-observability.md](./event-log-and-observability.md).
+> [sdp-event-log-and-observability.md](./sdp-event-log-and-observability.md).
 
 ## Pipeline concepts recap
 
@@ -71,4 +71,4 @@ pipelines publish it to the pipeline's configured catalog/schema.
 
 > For bundle depth — targets & modes, variables/interpolation, resource types, `job_runs`,
 > synced-table bin-packing, and deploy gotchas — see
-> [resources-and-deploy.md](./resources-and-deploy.md).
+> [dab-resources-and-deploy.md](./dab-resources-and-deploy.md).
