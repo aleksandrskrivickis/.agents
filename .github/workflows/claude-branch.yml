@@ -1,0 +1,57 @@
+name: Claude branch
+run-name: Refresh the claude branch for the Anthropic directory
+
+# The Anthropic plugin directory rejects two things that main needs: the skills'
+# Python helper scripts and the write-technical `applyTo` frontmatter key. A
+# non-Verified organization cannot ship a script, and the directory rejects a
+# skill frontmatter key outside its allowed list.
+#
+# This workflow mirrors main to the `claude` branch and strips those two things,
+# so the `claude` branch is directory-safe. Submit the plugin from
+# aleksandrskrivickis/.agents@claude. main keeps the full project, scripts and all.
+#
+# The branch is rebuilt from main on every push, so never commit to `claude` by
+# hand; the next push to main overwrites it.
+
+on:
+    push:
+        branches: [main]
+    workflow_dispatch:
+
+permissions:
+    contents: write
+
+# Serialised, so two refreshes can't race on the force-push.
+concurrency:
+    group: claude-branch
+    cancel-in-progress: false
+
+jobs:
+    refresh:
+        if: github.ref == 'refs/heads/main'
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+              with:
+                  ref: main
+                  fetch-depth: 0
+            - name: Build the claude branch from main, minus the rejected files
+              run: |
+                  set -euo pipefail
+                  git config user.name "${{ github.actor }}"
+                  git config user.email "${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com"
+                  git checkout -B claude
+
+                  # 1. Remove the skills' Python helper scripts, then any empty scripts/ dir.
+                  find skills -type f -name '*.py' -delete
+                  find skills -type d -name scripts -empty -delete
+
+                  # 2. Strip the `applyTo` key from each skill's frontmatter only.
+                  for f in skills/*/SKILL.md; do
+                      awk 'BEGIN{d=0} /^---[[:space:]]*$/{d++; print; next} (d==1 && /^applyTo:/){next} {print}' "$f" > "$f.tmp"
+                      mv "$f.tmp" "$f"
+                  done
+
+                  git add -A
+                  git commit -m "Refresh claude branch from main [skip ci]" || echo "No changes to commit."
+                  git push --force origin claude

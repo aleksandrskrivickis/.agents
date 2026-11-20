@@ -104,7 +104,7 @@ Run these commands in a terminal to add the marketplace directly in Claude Code:
 
 ```bash
 claude plugin marketplace add https://github.com/aleksandrskrivickis/.agents.git
-claude plugin install public@aleksandrs-agents
+claude plugin install agent-skills-handbook@aleksandrs-agents
 ```
 
 If the plugin already syncs from your Claude account, use that copy instead of installing it again.
