@@ -19,6 +19,12 @@ projects like `databricks-web-scraping/`; those carry their own `AGENTS.md`.
   Keep the parsed `description` at 1,024 characters or fewer. Claude.ai truncates longer values.
 - `.claude/skills` is a **local, gitignored** per-clone symlink to `skills/` (Claude Code only);
   it is not committed or automated. See `README.md` → "Post-clone setup".
+- **Name the plugin and marketplace to avoid a GitHub-handle clash.** The directory rejects a plugin
+  `name` that equals a GitHub account that does not own the repo (the `NAME_EQUALS_GITHUB_OWNER`
+  finding). Use a descriptive, hyphenated plugin name of two or more words (`agent-skills-handbook`),
+  never a bare word such as `public`, `test`, or `skills`. Namespace the marketplace after the owner
+  (`aleksandrs-agents`). Treat both names as permanent once published, because a rename breaks the
+  install id `plugin@marketplace`.
 - Links into a sibling repo are workspace-relative from a skill file
   (e.g. `../../../databricks-web-scraping/...`) and resolve only when that repo is a sibling under
   the same workspace root.
