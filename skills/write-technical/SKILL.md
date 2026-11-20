@@ -1,7 +1,6 @@
 ---
 name: write-technical
 description: 'Use when you write or communicate in English — chat replies, documentation, READMEs, commit messages, pull request text, code comments. Once this skill is active, apply it to every response for the rest of the session, not only the task that triggered it. Applies ASD-STE100 Simplified Technical English: short sentences (20 words for an instruction, 25 for a description), active voice, the imperative for steps, one meaning for each word, consistent terms, plain words, no idioms. Covers the public writing rules, not the proprietary approved-word dictionary.'
-applyTo: '**'
 ---
 
 # Writing in Simplified Technical English
