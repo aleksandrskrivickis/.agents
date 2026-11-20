@@ -10,6 +10,20 @@ That shape turns out to serve a human reader too. If you are here to learn rathe
 something, read a skill's **rules** section first: it is the condensed form of what the rest of the
 chapter argues for.
 
+## Using these skills in VS Code
+
+GitHub Copilot in VS Code reads these skills as context, with no extra setup in each project. Clone
+the repository so its path ends in `.agents` under your code root, then run **Developer: Reload
+Window**. Copilot then does two things:
+
+- It selects a skill on its own, by the skill's `description`, when your task matches the work.
+- It lists each skill as a slash command when you type `/`.
+
+Discovery starts at the workspace root, so every repository under that root uses the same skills. The
+same files also load in Claude Code and the Claude app. The
+[handbook home](https://aleksandrskrivickis.github.io/.agents/) has the clone paths and the install
+steps.
+
 ## How a chapter is organised
 
 - **Opening note** — what the subject is, where the knowledge came from, and what it does not cover.

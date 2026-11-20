@@ -1,7 +1,8 @@
-site_name: Agent Skills Handbook
+site_name: Agent skills handbook
 site_description: >-
-    Browse reusable skills for Claude and GitHub Copilot.
-    Topics include Databricks, PySpark, Azure, pytest, CI/CD, Obsidian, and technical writing.
+    Universal agent skills that work across agentic systems — GitHub Copilot, Claude Code, the Claude
+    app, and other skills-compatible agents. Topics include Databricks, PySpark, Azure, pytest, CI/CD,
+    Obsidian, and technical writing.
 site_url: https://aleksandrskrivickis.github.io/.agents/
 site_author: Aleksandrs Krivickis
 repo_url: https://github.com/aleksandrskrivickis/.agents

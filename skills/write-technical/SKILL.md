@@ -32,6 +32,7 @@ applyTo: '**'
 - Keep paragraphs short. Use six sentences or fewer.
 - Use a vertical list for complex or sequential information.
 - Start a warning or a caution with the command, then give the reason.
+- Use sentence case for titles, headings and names. Capitalize the first word and proper nouns only. Do not use title case.
 
 ## Quick symptom → fix index
 
@@ -42,6 +43,7 @@ applyTo: '**'
 | The same thing has two names | Choose one term and use it everywhere. |
 | A noun stack like "data access layer config" | Break it up with prepositions, or rename it. |
 | An idiom such as "ping me" or "low-hanging fruit" | Replace it with a literal phrase. |
+| Title case like "Agent Skills Handbook" | Use sentence case: "Agent skills handbook". Capitalize only names and brands. |
 
 ## Upstream documentation (sources)
 

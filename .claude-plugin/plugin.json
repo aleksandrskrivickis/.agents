@@ -1,23 +1,27 @@
 {
-    "name": "shared",
-    "displayName": "Shared Agent Skills",
+    "name": "public",
+    "displayName": "Agent skills handbook",
     "version": "0.1.9",
     "description": "Reusable skills for Claude. Topics include Databricks, PySpark, Azure, pytest, CI/CD, Obsidian, and technical writing. No connectors or tools.",
     "homepage": "https://aleksandrskrivickis.github.io/.agents/#install-in-claude",
     "repository": "https://github.com/aleksandrskrivickis/.agents",
+    "license": "GPL-3.0-or-later",
     "documentationUrl": "https://aleksandrskrivickis.github.io/.agents/",
     "supportUrl": "https://github.com/aleksandrskrivickis/.agents/issues",
     "privacyPolicyUrl": "https://aleksandrskrivickis.github.io/.agents/#privacy",
+    "icon": "./assets/logo.svg",
     "keywords": [
-        "agent-skills",
+        "agents",
+        "skills",
         "databricks",
         "pyspark",
-        "apache-spark",
+        "apache spark",
         "azure",
         "pytest",
-        "ci-cd",
+        "ci",
+        "cd",
         "obsidian",
-        "technical-writing"
+        "technical writing"
     ],
     "author": {
         "name": "Aleksandrs Krivickis",

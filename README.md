@@ -1,18 +1,21 @@
 ---
-title: Shared Skills for Claude and GitHub Copilot
+title: Portable skills for coding agents
 ---
 
 ![The agent skills handbook](https://m.media-amazon.com/images/M/MV5BMjEzODMzMzg1NF5BMl5BanBnXkFtZTYwNDE2NTE3._V1_.jpg)
 
-# Agent Skills Handbook
+# Agent skills handbook
 
 Production-tested engineering knowledge, written so a coding agent and a human can read the same page.
 
 A handbook of reusable engineering skills for Databricks, Azure, Python testing, and VS Code tooling.
 It records practical patterns, common failures, and fixes.
 
-They are **agent skills**: Markdown files that GitHub Copilot and Claude Code load as context when
-the task matches. They are also just good documentation, so they are published as a
+They are **agent skills**: plain Markdown files in the open skills format. The aim is universal
+tooling — one set of skills that works across agentic systems, not a separate copy for each tool.
+Different agents load them as context when the task matches: GitHub Copilot in VS Code, Claude Code,
+and the Claude app today, and other skills-compatible agents as the format spreads. They are also
+just good documentation, so they are published as a
 **[browsable handbook](https://aleksandrskrivickis.github.io/.agents/)** you can read without an
 editor open.
 
@@ -48,7 +51,7 @@ Full chapter index, with a reading order: [skills/README.md](skills/README.md).
 
 **Just want to read it.** → **[aleksandrskrivickis.github.io/.agents](https://aleksandrskrivickis.github.io/.agents/)**.
 
-**Use it in Claude.** [Install Shared Agent Skills](#install-in-claude) from the GitHub marketplace.
+**Use it in Claude.** [Install Agent skills handbook](#install-in-claude) from the GitHub marketplace.
 
 **Use it in VS Code with Copilot.** Clone so the path ends in `code-repositories/.agents`, and
 Copilot picks the skills up for every repo under that root:
@@ -74,7 +77,7 @@ git clone https://github.com/aleksandrskrivickis/.agents.git ~/.copilot/skills  
 
 ## Install in Claude
 
-**Shared Agent Skills** adds instructions for topics such as PySpark, Azure, Python testing, CI/CD, Obsidian, and technical writing.
+**Agent skills handbook** adds instructions for topics such as PySpark, Azure, Python testing, CI/CD, Obsidian, and technical writing.
 It adds no connectors or tools. The handbook is public. GitHub hosts the custom marketplace, not Anthropic.
 
 ### Claude app
@@ -83,7 +86,7 @@ It adds no connectors or tools. The handbook is public. GitHub hosts the custom 
 2. Select **Add > Add marketplace**.
 3. Choose **Add from a repository**.
 4. Paste the GitHub repository URL below and confirm.
-5. In **Discover**, select **Shared Agent Skills**, then select **Add**.
+5. In **Discover**, select **Agent skills handbook**, then select **Add**.
 6. Type `/` in Chat or Cowork to see the available skills.
 
 ```text
@@ -91,7 +94,7 @@ https://github.com/aleksandrskrivickis/.agents
 ```
 
 Use the GitHub repository URL, not the handbook URL. The marketplace needs the repository files.
-If Claude shows **Shared**, check for the plugin from `aleks-agents`. The install ID has not changed.
+In **Discover**, the plugin shows as **Agent skills handbook** from the `aleksandrs-agents` marketplace.
 If your organization restricts custom marketplaces, ask an owner to allow this repository.
 See [Claude Help: Use plugins in Claude](https://support.claude.com/en/articles/13837440-use-plugins-in-claude).
 
@@ -101,7 +104,7 @@ Run these commands in a terminal to add the marketplace directly in Claude Code:
 
 ```bash
 claude plugin marketplace add https://github.com/aleksandrskrivickis/.agents.git
-claude plugin install shared@aleks-agents
+claude plugin install public@aleksandrs-agents
 ```
 
 If the plugin already syncs from your Claude account, use that copy instead of installing it again.
@@ -118,7 +121,7 @@ Claude loads the matching skill and follows its guidance.
 
 ## Privacy
 
-**Shared Agent Skills** contains instruction files only. It adds no connectors, MCP servers, hooks,
+**Agent skills handbook** contains instruction files only. It adds no connectors, MCP servers, hooks,
 or executable code.
 
 - It does not read or store personal data.
