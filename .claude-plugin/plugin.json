@@ -1,7 +1,7 @@
 {
     "name": "aleksandrskrivickis",
     "displayName": "Agent skills handbook",
-    "version": "0.1.15",
+    "version": "0.1.16",
     "description": "Reusable skills for Claude. Topics include Databricks, PySpark, Azure, pytest, CI/CD, Obsidian, and technical writing. No connectors or tools.",
     "homepage": "https://aleksandrskrivickis.github.io/.agents/#install-in-claude",
     "repository": "https://github.com/aleksandrskrivickis/.agents",
