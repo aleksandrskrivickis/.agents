@@ -26,10 +26,7 @@ steps:
   - task: UsePythonVersion@0
     inputs:
       versionSpec: "3.12" # matches requires-python
-  - script: |
-      set -euo pipefail
-      curl -LsSf https://astral.sh/uv/install.sh | sh
-      echo "##vso[task.prependpath]$HOME/.local/bin"
+  - script: python -m pip install uv
     displayName: Install uv
   - script: uv sync --group dev
     displayName: Install dependencies

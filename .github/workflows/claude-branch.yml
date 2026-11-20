@@ -4,9 +4,11 @@ run-name: Refresh the claude branch for the Anthropic directory
 # The Anthropic plugin directory rejects two things that main needs: the skills'
 # Python helper scripts and the write-technical `applyTo` frontmatter key. A
 # non-Verified organization cannot ship a script, and the directory rejects a
-# skill frontmatter key outside its allowed list.
+# skill frontmatter key outside its allowed list. It also refuses to follow
+# symlinks, so the .github/instructions link to write-technical leaves the
+# plugin "not fully checked" and turns otherwise-clear findings into review holds.
 #
-# This workflow mirrors main to the `claude` branch and strips those two things,
+# This workflow mirrors main to the `claude` branch and strips those three things,
 # so the `claude` branch is directory-safe. Submit the plugin from
 # aleksandrskrivickis/.agents@claude. main keeps the full project, scripts and all.
 #
@@ -60,6 +62,9 @@ jobs:
                       awk 'BEGIN{d=0} /^---[[:space:]]*$/{d++; print; next} (d==1 && /^applyTo:/){next} {print}' "$f" > "$f.tmp"
                       mv "$f.tmp" "$f"
                   done
+
+                  # 3. Remove every symlink outside .git. Copilot needs them on main only.
+                  find . -path ./.git -prune -o -type l -print -exec rm {} +
 
                   git add -A
                   git commit -m "Refresh claude branch from main [skip ci]" || echo "No changes to commit."

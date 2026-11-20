@@ -42,16 +42,12 @@ spark.conf.get("spark.password")  # shows [REDACTED] if printed
 Environment variable (Compute → Advanced → Environment variables):
 
 ```ini
-SPARKPASSWORD={{secrets/my-scope/my-key}}
+YOUR_API_KEY={{secrets/my-scope/my-key}}
 ```
 
-A cluster-scoped init script reads it as a normal shell variable:
-
-```bash
-if [ -n "$SPARKPASSWORD" ]; then
-  : # use ${SPARKPASSWORD}
-fi
-```
+A cluster-scoped init script, or code on the driver, then reads `YOUR_API_KEY` as an ordinary
+environment variable. Databricks replaces the reference with the secret value when the cluster
+starts.
 
 ## Notes
 

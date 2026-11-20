@@ -161,20 +161,20 @@ steps:
         TEMPLATE_NAME=$(basename "${{ parameters.templateFilePath }}" .bicep)
         DEPLOYMENT_NAME="${{ parameters.environmentName }}-${{ parameters.deployOperation }}-${TEMPLATE_NAME}-$(date +%Y%m%d-%H%M%S)"
 
-        COMMAND="az deployment sub ${{ parameters.deployOperation }} \\
-          --name \"${DEPLOYMENT_NAME}\" \\
-          --location ${{ parameters.deploymentRegion }} \\
-          --template-file ${{ parameters.templateFilePath }} \\
-          --parameters @${{ parameters.parametersPath }} \\
-          --parameters ${{ parameters.additionalBicepParameters }}"
+        ARGS=(az deployment sub "${{ parameters.deployOperation }}"
+          --name "${DEPLOYMENT_NAME}"
+          --location "${{ parameters.deploymentRegion }}"
+          --template-file "${{ parameters.templateFilePath }}"
+          --parameters "@${{ parameters.parametersPath }}"
+          --parameters ${{ parameters.additionalBicepParameters }})  # unquoted: splits into key=value pairs
 
         if [ -n "${{ parameters.additionalParametersPath }}" ]; then
-          COMMAND="${COMMAND} --parameters @${{ parameters.additionalParametersPath }}"
+          ARGS+=(--parameters "@${{ parameters.additionalParametersPath }}")
         fi
 
-        echo -e "${{ parameters.parametersPath }} contents:\n"; cat ${{ parameters.parametersPath }}
-        echo -e "Executing bash:\n${COMMAND}"
-        eval "${COMMAND}"
+        echo -e "${{ parameters.parametersPath }} contents:\n"; cat "${{ parameters.parametersPath }}"
+        echo "Executing:"; printf '%q ' "${ARGS[@]}"; echo
+        "${ARGS[@]}"
 ```
 
 - **`values:` on a template parameter is a compile-time allowlist** — a typo'd operation fails at
@@ -182,11 +182,11 @@ steps:
 - **Timestamped deployment names** keep the subscription deployment history readable and avoid
   colliding with a previous run's record (ARM keeps 800 per scope). Encoding env + operation +
   template in the name makes the history self-documenting.
-- The `COMMAND` + `eval` construction exists so the optional second parameter file can be appended
-  conditionally, and so the exact command is **echoed before execution**. That echo is the single most
-  useful debugging affordance in the whole pipeline set — keep it. (`eval` on interpolated values is
-  only safe because every input is a template parameter from a trusted variable group; don't extend
-  this pattern to user-supplied strings.)
+- The `ARGS` array exists so the optional second parameter file can be appended conditionally, and
+  so the exact command is **echoed before execution**. That echo is the single most useful debugging
+  affordance in the whole pipeline set — keep it. The source project built a command string and ran it
+  with `eval`; an array does the same job without re-parsing interpolated values as shell code.
+  `[deduced]`
 - `cat` of the parameter file in the log makes a wrong-config run obvious at a glance. Never do this
   for a file containing secrets.
 - `--parameters` is **repeatable and additive**: a file, then inline `key=value` pairs, then a second
@@ -284,7 +284,7 @@ inlineScript: |
     inputs:
       azureSubscription: $(serviceConnectionName)
       scriptType: bash
-      addSpnToEnvironment: true          # exposes $servicePrincipalId / $servicePrincipalKey / $tenantId
+      addSpnToEnvironment: true          # exposes the SPN's ID, key and tenant ID as shell variables
       scriptLocation: inlineScript
       inlineScript: |
         set -e
@@ -515,5 +515,5 @@ rule:
   The repo used this to bridge SPN credentials into a Terraform task and later removed the need for
   it; if you find yourself reaching for it to pass credentials, prefer `addSpnToEnvironment` + CLI
   auth instead.
-- Echoing a command before `eval` is good; echoing a parameter file is good **only** when it holds no
+- Echoing a command before running it is good; echoing a parameter file is good **only** when it holds no
   secrets. Keep secrets in the variable group marked secret, and out of config JSON.

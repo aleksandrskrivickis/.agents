@@ -78,9 +78,9 @@ plane can be redeployed alone. Only the Terraform plane holds state.
     `datasourceType: 'Microsoft.Storage/storageAccounts/adlsBlobServices'` and
     `objectType: 'AdlsBlobBackupDatasourceParameters'`, and it has **no operational-tier rule** —
     only the vault-tier rule. The blob variants fail at deploy.
-11. **Terraform runs inside `AzureCLI@2` with `addSpnToEnvironment: true`.** That exposes
-    `$servicePrincipalId` / `$tenantId` / `$servicePrincipalKey` as **shell** variables — so a
-    backend config references them as `$servicePrincipalId`, *not* `$(servicePrincipalId)`. Set
+11. **Terraform runs inside `AzureCLI@2` with `addSpnToEnvironment: true`.** That exposes the
+    service principal's ID, tenant ID and key as **shell** variables — so a backend config uses shell
+    syntax (`$name`) for them, *not* pipeline macro syntax (`$(name)`). Set
     `auth_type = "azure-cli"` on both Databricks providers and let the CLI session carry the
     identity; don't hand-marshal `ARM_*` variables into a Terraform task.
 12. **Keep `terraform plan`/`apply` non-interactive.** `export TF_INPUT=false` (or `-input=false`)

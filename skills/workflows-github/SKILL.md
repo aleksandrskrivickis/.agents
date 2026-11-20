@@ -35,9 +35,7 @@ jobs:
         with:
           python-version: "3.12" # matches requires-python
       - name: Install uv
-        run: |
-          curl -LsSf https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+        run: python -m pip install uv
       - run: uv sync --group dev
       - name: Ruff check (advisory)
         continue-on-error: true
@@ -65,8 +63,9 @@ jobs:
 - **Test report UI:** GitHub Actions has no built-in JUnit publisher (unlike Azure DevOps'
   `PublishTestResults`). Upload the XML as an artifact, or add a reporter action (e.g.
   `dorny/test-reporter`) for inline PR annotations.
-- **uv install:** the `curl` installer mirrors the DevOps pipeline; `astral-sh/setup-uv` is a
-  first-class alternative that adds caching.
+- **uv install:** `pip install uv` mirrors the DevOps pipeline and installs into the Python that
+  `setup-python` put on `PATH`. `astral-sh/setup-uv` is a first-class alternative that adds caching.
+  Avoid piping a downloaded install script into `sh`: what runs can change without a diff.
 - **JVM-dependent integration tests:** provision a JDK (`actions/setup-java`) or let them skip (see
   [the harness reference](../test-python/references/notebook-harness.md)).
 - **Credentialled tests stay opt-in.** Anything needing a cloud login — bundle validation, a remote
