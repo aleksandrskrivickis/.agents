@@ -10,12 +10,18 @@ run-name: Refresh the claude branch for the Anthropic directory
 # so the `claude` branch is directory-safe. Submit the plugin from
 # aleksandrskrivickis/.agents@claude. main keeps the full project, scripts and all.
 #
-# The branch is rebuilt from main on every push, so never commit to `claude` by
-# hand; the next push to main overwrites it.
+# The branch is rebuilt from main on every push, and again after Publish bumps the
+# version, so never commit to `claude` by hand; the next refresh overwrites it.
 
 on:
     push:
         branches: [main]
+    # Publish pushes its version bump with the default token, which does not start
+    # workflows. Without this trigger the claude branch trails main by one patch.
+    # Re-run after Publish completes, so claude matches the released version.
+    workflow_run:
+        workflows: ["Publish"]
+        types: [completed]
     workflow_dispatch:
 
 permissions:
@@ -28,7 +34,10 @@ concurrency:
 
 jobs:
     refresh:
-        if: github.ref == 'refs/heads/main'
+        # Run on a push or a manual dispatch, or after Publish finishes successfully.
+        if: >-
+            github.event_name != 'workflow_run'
+            || github.event.workflow_run.conclusion == 'success'
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v4
