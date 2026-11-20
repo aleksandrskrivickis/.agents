@@ -1,5 +1,5 @@
 {
-    "name": "agent-skills-handbook",
+    "name": "aleksandrskrivickis",
     "displayName": "Agent skills handbook",
     "version": "0.1.12",
     "description": "Reusable skills for Claude. Topics include Databricks, PySpark, Azure, pytest, CI/CD, Obsidian, and technical writing. No connectors or tools.",
