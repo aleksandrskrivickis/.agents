@@ -427,6 +427,24 @@ normal, variable-driven argument on `databricks_catalog`, `databricks_external_l
 let the provider-side guard do the work — a catalog refuses to drop non-empty schemas when
 `force_destroy = false`.
 
+Know precisely what that guard does and does not cover, because the gap is counter-intuitive:
+
+- **`force_destroy = false` does not protect an *empty* catalog.** Databricks blocks the destroy only
+  when contents exist, so a freshly provisioned catalog — or one whose schemas were just dropped —
+  vanishes silently on the next apply. Blob data is never touched (the container is a `data` source,
+  not a managed resource), but the catalog object and its grants are gone. `[repo]`
+- **Grants are revoked even when the catalog destroy later fails.** You land in a half-applied state:
+  the catalog still exists and every group privilege on it has been removed. Operationally that is
+  worse than a clean failure, because the resource looks healthy.
+- **`for_each = toset(local.containers)`** makes the resource address key the container name, so
+  *renaming* a container is a destroy-and-recreate rather than an in-place rename — with all of the
+  above applying.
+
+Two guards worth adding beyond the lifecycle flag: a CI check that diffs the configured container
+list against the last applied state and **fails on any removal** unless an explicit override
+variable is set, and a documented destroy/rename procedure, since the `for_each` keys are the
+container names.
+
 Reserve the literal `prevent_destroy` for the **irreplaceable singletons**, where the cost is not
 the resource but the cascade:
 

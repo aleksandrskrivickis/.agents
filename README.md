@@ -36,6 +36,7 @@ editor open.
 - [test-python](skills/test-python/SKILL.md) — pytest layout, testing non-importable notebook modules, a hardened local `SparkSession` fixture, wheel and bundle-validation tests.
 - [workflows-github](skills/workflows-github/SKILL.md) — a GitHub Actions lint-and-test workflow plus version-bump + release-on-merge, and how merges get gated.
 - [workflows-devops](skills/workflows-devops/SKILL.md) — the Azure DevOps equivalent, including the Azure Repos `pr:` trigger trap.
+- [hiring-test-infrastructure](skills/hiring-test-infrastructure/SKILL.md) — a take-home IaC exercise: the scaffold that makes the compile error the brief, a weighted rubric, and the harness defects that mis-grade candidates.
 
 **Engineering practice**
 

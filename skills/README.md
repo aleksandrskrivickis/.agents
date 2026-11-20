@@ -54,6 +54,7 @@ vendor-documented constraint, `[deduced]` for an inference, `[?]` for a guess wo
 - [test-python](./test-python/SKILL.md) — pytest layout, testing non-importable notebook modules, local-Spark fixtures, bundle and wheel tests, integration and golden-corpus testing.
 - [workflows-github](./workflows-github/SKILL.md) — a GitHub Actions lint-and-test pipeline plus version-bump + release-on-merge, and how merges actually get gated.
 - [workflows-devops](./workflows-devops/SKILL.md) — the Azure DevOps equivalent, including the Azure Repos `pr:` trigger trap.
+- [hiring-test-infrastructure](./hiring-test-infrastructure/SKILL.md) — a take-home IaC exercise: the composition-root-plus-empty-modules scaffold, mapping one module to one skill, a weighted rubric, and the harness defects that silently mis-grade candidates.
 
 ### Engineering practice
 
