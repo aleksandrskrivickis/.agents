@@ -150,9 +150,9 @@ terraform show -json tfplan.binary > terraform-plan.json   # input for PSRule
 
 This skill is the **Azure platform layer**. The layers above it, in order:
 
-- [databricks-asset-bundles](../databricks-asset-bundles/SKILL.md) — `databricks.yml`: the jobs,
-  pipelines and Lakebase resources deployed *into* the workspace this skill provisions.
-- [develop-sdp](../develop-sdp/SKILL.md) — the declarative pipelines those bundles carry.
+- [develop-databricks](../develop-databricks/SKILL.md) — `databricks.yml`: the jobs, pipelines and
+  Lakebase resources deployed *into* the workspace this skill provisions, and the declarative
+  pipelines those bundles carry.
 - [develop-pyspark](../develop-pyspark/SKILL.md) — the transform code inside them.
 - [workflows-devops](../workflows-devops/SKILL.md) — a much smaller Azure DevOps pipeline
   (lint and test only) if the full preflight/approval/lock/Terraform machinery here is more than you

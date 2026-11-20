@@ -203,7 +203,7 @@ These are the failure modes that bite *elsewhere* when this job has not run:
 1. **Serving-endpoint names are workspace-global.** An endpoint created by any target is visible to
    all of them. That is convenient and dangerous: a pipeline in one environment can be reading an
    endpoint another environment deployed, with no declared dependency. See
-   [databricks-asset-bundles](../../databricks-asset-bundles/SKILL.md) for why a stable endpoint name
+   [develop-databricks](../../develop-databricks/SKILL.md) for why a stable endpoint name
    must be deployed from a production-mode target.
 2. **If the registration job lives in only one target, the others silently rely on it.** In the
    source project the endpoint declarations sat inside one target only; neither of the two

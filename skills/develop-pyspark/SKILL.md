@@ -12,7 +12,7 @@ description: 'Use when writing PySpark transforms on Databricks: mapInPandas, ap
 > reasoning behind it appears with it.
 >
 > It assumes you are writing PySpark on the Databricks Runtime. For the declarative pipeline layer
-> around these transforms, see [develop-sdp](../develop-sdp/SKILL.md).
+> around these transforms, see [develop-databricks](../develop-databricks/SKILL.md).
 
 ## Detailed references
 
@@ -106,7 +106,7 @@ description: 'Use when writing PySpark transforms on Databricks: mapInPandas, ap
 - Apache Arrow — Python `Table`/`RecordBatch` (`combine_chunks`): <https://arrow.apache.org/docs/python/api/table.html>
 - MLflow — `pyfunc` models and model serving input validation: <https://mlflow.org/docs/latest/python_api/mlflow.pyfunc.html>
 - For the SDP/Lakeflow pipeline docs (the `dp` API, bundles, AUTO CDC, LIVE schema), see
-  [develop-sdp](../develop-sdp/SKILL.md) → *Upstream documentation*.
+  [develop-databricks](../develop-databricks/SKILL.md) → *Upstream documentation*.
 
 ## When to use this skill
 
@@ -116,9 +116,8 @@ serving limits, checkpoint behaviour, embedding quality or skew.
 
 ## Related skills
 
-- [develop-sdp](../develop-sdp/SKILL.md) — the declarative pipeline layer these transforms live in:
-  tables vs flows, expectations, the event log, refresh semantics.
-- [databricks-asset-bundles](../databricks-asset-bundles/SKILL.md) — how the pipeline and its
-  serving endpoints get deployed and parameterised per environment.
+- [develop-databricks](../develop-databricks/SKILL.md) — the declarative pipeline layer these
+  transforms live in (tables vs flows, expectations, the event log, refresh semantics), and how the
+  pipeline and its serving endpoints get deployed and parameterised per environment.
 - [test-python](../test-python/SKILL.md) — testing a pipeline notebook's pure logic without Spark,
   and the local-SparkSession harness for the rest.

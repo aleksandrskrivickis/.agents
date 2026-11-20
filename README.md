@@ -21,16 +21,14 @@ editor open.
 
 ## The chapters
 
-**Data pipelines**
+**Databricks and Spark**
 
-- [develop-sdp](skills/develop-sdp/SKILL.md) — Spark Declarative Pipelines: the `dp` API, streaming table vs materialized view, expectations, the event log, refresh semantics and a triage playbook.
+- [develop-databricks](skills/develop-databricks/SKILL.md) — the whole Databricks surface: Spark Declarative Pipelines (the `dp` API, streaming table vs materialized view, expectations, the event log, refresh semantics and a triage playbook), asset bundles (`databricks.yml` targets and modes, variable interpolation, resource types, Lakebase, post-deploy runs), and the platform itself (Unity Catalog introspection, migrating tables into UC, the copy-vs-refresh trap, Delta time travel).
 - [develop-pyspark](skills/develop-pyspark/SKILL.md) — what goes wrong inside a transform: pandas-UDF OOM, Arrow `ChunkedArray` crashes, model serving, document chunking, skew, throughput, never-raise API calls.
 - [develop-scala](skills/develop-scala/SKILL.md) — a custom Spark `FileFormat` DataSource: `UnsafeRow` construction, short-name registration, shaded packaging.
-- [develop-databricks](skills/develop-databricks/SKILL.md) — the platform itself: Unity Catalog introspection, migrating tables into UC, the copy-vs-refresh trap, and Delta time travel.
 
-**Deployment and infrastructure**
+**Infrastructure**
 
-- [databricks-asset-bundles](skills/databricks-asset-bundles/SKILL.md) — `databricks.yml`: targets and modes, variable interpolation, resource types, Lakebase, post-deploy runs, and the deploy-time traps.
 - [develop-infrastructure](skills/develop-infrastructure/SKILL.md) — the Azure platform underneath: Bicep in four planes, Terraform for Unity Catalog, and the Azure DevOps pipelines that orchestrate both.
 
 **Testing**
@@ -139,7 +137,7 @@ A skill is a folder. Its `SKILL.md` carries YAML frontmatter plus a lean body; t
 lives in `references/` and loads only when it is needed.
 
 ```
-skills/develop-sdp/
+skills/develop-databricks/
 ├── SKILL.md                  # frontmatter + the lean body an agent always loads
 └── references/
     ├── sdp-python-api.md     # loaded on demand, one file per topic
@@ -149,7 +147,7 @@ skills/develop-sdp/
 
 ```yaml
 ---
-name: develop-sdp            # MUST equal the folder name, or the skill is silently ignored
+name: develop-databricks     # MUST equal the folder name, or the skill is silently ignored
 description: 'Use when …'    # the discovery surface — concrete trigger keywords
 ---
 ```

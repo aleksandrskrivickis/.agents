@@ -104,7 +104,7 @@ Reference other pipeline tables by bare name (`spark.table("orders")` /
 
 The Apache `spark-pipelines` CLI (`init`/`run`/`dry-run`, `spark-pipeline.yml` spec) is **not used
 on Databricks** — there you deploy via bundles and iterate in the Lakeflow Pipelines Editor.
-See [bundles-editor-publishing.md](./bundles-editor-publishing.md).
+See [pipelines-editor-and-publishing.md](./pipelines-editor-and-publishing.md).
 
 ## Sources
 

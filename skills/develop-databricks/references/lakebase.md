@@ -2,7 +2,8 @@
 
 > **Source.** `[repo]` — from a production bundle that declares a Lakebase project and branches,
 > syncs Unity Catalog tables into them, and exposes one schema as a read-only HTTP API consumed
-> through an API gateway. `[docs]` marks documented Databricks behaviour; `[deduced]` an inference.
+> through an API gateway, plus a Databricks example notebook for the raw-API-client section.
+> `[docs]` marks documented Databricks behaviour; `[deduced]` an inference.
 
 [resources-and-deploy.md](./resources-and-deploy.md) covers the `postgres_synced_tables` resource and
 its bin-packing. This file covers what sits **under** it (the project and branch the tables live in)
@@ -241,6 +242,36 @@ targets:
 - Pass the service principal id as a **bundle variable**, not a literal in the notebook. The source
   project had it as a widget default, which is how a principal id for one environment ends up
   granted in another.
+
+## Administering a project with the SDK raw API client
+
+Some project-level operations have no bundle resource and no typed SDK method. `WorkspaceClient()`
+authenticates from the notebook's runtime credentials — no host or token literal — and
+`api_client.do()` then calls any REST endpoint, including ones the typed SDK does not wrap yet.
+
+```python
+# /// script
+# [tool.databricks.environment]
+# environment_version = "6"
+# ///
+from databricks.sdk import WorkspaceClient
+
+w = WorkspaceClient()  # auto-auth from the notebook runtime; no host/token literal
+
+# Delete a Lakebase (Postgres) project, purging its data
+w.api_client.do(
+    "DELETE",
+    "/api/2.0/postgres/projects/my-project",
+    query={"purge": True},
+)
+```
+
+- The `# /// script … environment_version = "6"` header pins the notebook's serverless environment.
+- `api_client.do(method, path, query=..., body=...)` is the escape hatch for any REST endpoint the
+  typed SDK does not expose yet.
+- `purge=True` is **destructive and irreversible** — it deletes the project's data, not just the
+  reference. A project a bundle target declares is recreated empty on the next deploy, which reads
+  as a successful deploy over lost data.
 
 ## Fronting it with an API gateway
 

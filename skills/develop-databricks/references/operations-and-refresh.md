@@ -111,7 +111,7 @@ configuration:
 
 Separately, the **job** wrapping a pipeline has its own `max_retries` and `max_concurrent_runs`;
 those are bundle-level and covered in
-[databricks-asset-bundles](../../databricks-asset-bundles/SKILL.md).
+[resources-and-deploy.md](./resources-and-deploy.md).
 
 ## `ignoreChanges` on a full-recompute upstream duplicates rows
 
@@ -212,5 +212,7 @@ expectation counts per update — see
 
 - [expectations-policy.md](./expectations-policy.md) — whether your quality rules can stop anything.
 - [event-log-and-observability.md](./event-log-and-observability.md) — the triage substrate.
-- [databricks-asset-bundles](../../databricks-asset-bundles/SKILL.md) — schedules, job retries, and
-  per-target configuration.
+- [resources-and-deploy.md](./resources-and-deploy.md) — schedules, job retries, and the
+  `pipelines:` resource block.
+- [targets-and-modes.md](./targets-and-modes.md) — why per-target configuration must be set
+  everywhere, not only in `dev`.

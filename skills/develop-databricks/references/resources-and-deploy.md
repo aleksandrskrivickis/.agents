@@ -3,13 +3,67 @@
 > **Source.** `[repo]` — distilled from a production Lakeflow bundle and the deploy failures it
 > hit. `[docs]` marks documented Databricks CLI/bundle behaviour; `[deduced]` an inference.
 
+## Shape of a bundle
+
+```
+my-bundle/
+├── databricks.yml                 # bundle name, uuid, targets (dev/prod), variables, artifacts
+├── resources/
+│   ├── sample_job.job.yml         # a job definition
+│   └── bundle_etl.pipeline.yml    # a pipeline definition
+├── src/                           # the Python the job and pipeline run
+└── tests/                         # pytest, with a conftest fixture
+```
+
+The root `databricks.yml` it all hangs off, with the three traps visible in one place — a top-level
+`include:`, a literal `workspace.host`, and a variable with no default:
+
+```yaml
+bundle:
+    name: my-bundle
+    uuid: <stable-uuid>
+
+include:
+    - resources/*.yml                 # top-level ONLY — there is no per-target include
+
+artifacts:
+    python_artifact:
+        type: whl
+        build: uv build --wheel
+        dynamic_version: true
+
+variables:
+    catalog: {default: my_catalog}
+    schema:  {description: "Required; each target sets its own."}   # no default = required
+
+workspace:
+    host: https://<workspace>.azuredatabricks.net    # literal — NOT ${var.*}-interpolatable
+
+targets:
+    dev:
+        default: true
+        mode: development                             # [dev <user>] prefix + paused schedules
+        workspace:
+            root_path: /Workspace/Assets/Bundles/Individual/${workspace.current_user.short_name}/${bundle.name}/${bundle.target}
+        variables:
+            schema: ${workspace.current_user.short_name}_dev
+    prod:
+        mode: production
+        variables:
+            schema: my_schema_prod
+```
+
+Bundles need Databricks CLI **v0.218.0+**; `job_runs` needs **v1.7.0+** and the direct deployment
+engine. You can also create and deploy a bundle entirely in the workspace UI without installing the
+CLI. For auth, OAuth U2M (`databricks auth login`) is the recommended path.
+
 ## Resource types & key uniqueness
 
 Under `resources:` (globally in `resources/*.yml`, or inline under `targets.<t>.resources`):
 `pipelines`, `jobs`, `job_runs`, `model_serving_endpoints`, `postgres_projects`,
 `postgres_branches`, `postgres_synced_tables`, and more.
 
-- **Resource keys are globally unique across ALL types** (see SKILL rule 1). The key is
+- **Resource keys are globally unique across ALL types** (see the deployment rules in [the skill overview](../SKILL.md)). The key is
   bundle-internal; the deployed identity is the resource's own `name` / `id` / `project_id` field, so
   the key can be renamed without changing the deployed object.
 
@@ -80,7 +134,7 @@ resources:
 ## Lakebase / Postgres synced tables (bin-packing)
 
 > The project and branch these tables live in, and the **Data API** that serves them over HTTP, are
-> covered in [lakebase-and-data-api.md](./lakebase-and-data-api.md) — including the trap that a role
+> covered in [lakebase.md](./lakebase.md) — including the trap that a role
 > created via `postgres_roles` cannot be granted to `authenticator`.
 
 ```yaml

@@ -169,5 +169,5 @@ replace = 'version = "{new_version}"'
   `pyproject.toml` configuration it relies on.
 - [workflows-devops](../workflows-devops/SKILL.md) — the Azure DevOps equivalent, with a
   significant trigger difference.
-- [databricks-asset-bundles](../databricks-asset-bundles/SKILL.md) — what `bundle validate` checks,
+- [develop-databricks](../develop-databricks/SKILL.md) — what `bundle validate` checks,
   if you add the credentialled job.

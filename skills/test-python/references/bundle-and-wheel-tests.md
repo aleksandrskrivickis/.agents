@@ -144,7 +144,7 @@ def test_validate_bundle(validated_bundle):
   interpolation locally, then authenticates. It deploys nothing.
 - **Reaching an authentication error means structural validation already passed**, which makes a
   credential-less local run still useful as a schema check — see
-  [databricks-asset-bundles](../../databricks-asset-bundles/SKILL.md).
+  [develop-databricks](../../develop-databricks/SKILL.md).
 
 > **Never let a test deploy.** `bundle validate` only. Not `deploy`, not behind a flag, not "just for
 > dev" — a test suite that can mutate a workspace will eventually run against the wrong target. The

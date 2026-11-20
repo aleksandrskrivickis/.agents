@@ -113,7 +113,7 @@ Conventions worth copying:
 
 - **`builtins = ["spark", "dlt", "dbutils"]`** is what makes ruff usable on notebook-format sources.
   Pair it with a `__builtins__.pyi` so the IDE agrees with the linter — see
-  [develop-sdp](../develop-sdp/SKILL.md) → *IDE typing*.
+  [develop-databricks](../develop-databricks/references/sdp-vs-databricks-and-naming.md) → *IDE typing*.
 - **Pin the pure-Python transformation libraries into the dev group**, even when the runtime
   installs them elsewhere, so the logic that uses them is actually covered. A similarity function or
   a fuzzy matcher is testable; it is only tested if its library is installed in the test env.
@@ -147,7 +147,7 @@ For CI, use the [workflows-github](../workflows-github/SKILL.md) or
 
 - [develop-pyspark](../develop-pyspark/SKILL.md) — what the pipeline logic under test is doing, and
   which parts are pure enough to unit-test.
-- [develop-sdp](../develop-sdp/SKILL.md) — why pipeline source files can't be imported.
-- [databricks-asset-bundles](../databricks-asset-bundles/SKILL.md) — what `bundle validate` checks.
+- [develop-databricks](../develop-databricks/SKILL.md) — why pipeline source files can't be
+  imported, and what `bundle validate` checks.
 - [workflows-github](../workflows-github/SKILL.md) /
   [workflows-devops](../workflows-devops/SKILL.md) — running this suite in CI.

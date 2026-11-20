@@ -109,6 +109,6 @@ version where the ecosystem reads it" rule — both are platform-independent.
 - [test-python](../test-python/SKILL.md) — how to write the tests this pipeline runs, and the
   `pyproject.toml` configuration it relies on.
 - [workflows-github](../workflows-github/SKILL.md) — the GitHub Actions equivalent.
-- [databricks-asset-bundles](../databricks-asset-bundles/SKILL.md) — what `bundle validate` checks.
+- [develop-databricks](../develop-databricks/SKILL.md) — what `bundle validate` checks.
 - [develop-infrastructure](../develop-infrastructure/SKILL.md) — a much larger Azure DevOps pipeline
   set (preflight, approvals, locks, Terraform, PSRule) if you need more than lint-and-test.

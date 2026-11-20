@@ -137,7 +137,7 @@ targets:
             job_runs:                            # fires once per `bundle deploy -t shared`
                 embedding-model-registration:
                     job_id: ${resources.jobs.register-embedding-model.id}
-            postgres_projects: { ... }           # see lakebase-and-data-api.md
+            postgres_projects: { ... }           # see lakebase.md
             postgres_branches: { ... }
 ```
 

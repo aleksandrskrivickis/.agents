@@ -188,5 +188,5 @@ and gives you a cheap, incremental observability table — including the trick f
 - [expectations-policy.md](./expectations-policy.md) — what lands in `data_quality` and why the
   policy decides whether it means anything.
 - [operations-and-refresh.md](./operations-and-refresh.md) — using the event log to triage a run.
-- [bundles-editor-publishing.md](./bundles-editor-publishing.md) — the `event_log:` block in the
-  pipeline resource.
+- [resources-and-deploy.md](./resources-and-deploy.md) — the `event_log:` block in the pipeline
+  resource.

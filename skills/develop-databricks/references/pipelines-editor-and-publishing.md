@@ -1,24 +1,22 @@
-# Bundles, the Pipelines Editor, publishing modes & event log
+# The Pipelines Editor, publishing modes & the event log
 
 > **Source.** `[docs]` for the API surface and documented behaviour (Apache Spark + Databricks
 > Lakeflow documentation); `[repo]` for what a production pipeline actually used and hit.
 > `[deduced]` marks an inference.
 
-## Declarative Automation Bundles (formerly Databricks Asset Bundles / DAB)
+## Where the bundle layer sits
 
-Bundles are the infrastructure-as-code wrapper that defines a Databricks project (jobs, pipelines,
-dashboards, model-serving endpoints, MLflow experiments/models) as YAML alongside source, deployed
-with the Databricks CLI. **The product was renamed from "Databricks Asset Bundles" to "Declarative
-Automation Bundles"** (docs, Sep 2026); the `databricks.yml` file and `databricks bundle` CLI are
-unchanged, so existing "DAB" naming still reads correctly — the rename is cosmetic.
+Pipelines are deployed as a **bundle** resource — `databricks.yml` plus `resources/*.yml`, applied
+with `databricks bundle validate` / `deploy` / `run`. The product was renamed from "Databricks Asset
+Bundles" to "Declarative Automation Bundles" (docs, Sep 2026); the `databricks.yml` file and the
+`databricks bundle` CLI are unchanged, so existing "DAB" naming still reads correctly — the rename is
+cosmetic.
 
-- Defined in `databricks.yml` + resource files (for example `resources/pipelines.yml`,
-  `resources/jobs.yml`). Deploy with `databricks bundle validate` / `deploy` / `run`.
-- CLI **v0.218.0+** required for bundles; Databricks recommends staying current. You can also
-  create/deploy bundles entirely in the workspace UI without installing the CLI.
-- `bundle validate` catches schema/duplicate-key errors locally before auth. Resource **keys are
-  globally unique** across resource types within a bundle.
-- Auth: OAuth U2M (`databricks auth login`) is the recommended path.
+Version-control pipeline **source** in a Git folder, and pipeline **configuration** in the bundle.
+The bundle surface itself — targets and modes, variables, the `pipelines:` resource block and its
+`event_log:` / `configuration:` / `environment:` keys, `job_runs`, and the deploy gotchas — is in
+[resources-and-deploy.md](./resources-and-deploy.md), [targets-and-modes.md](./targets-and-modes.md)
+and [variables-and-interpolation.md](./variables-and-interpolation.md).
 
 ## Lakeflow Pipelines Editor
 
@@ -73,4 +71,4 @@ pipelines publish it to the pipeline's configured catalog/schema.
 
 > For bundle depth — targets & modes, variables/interpolation, resource types, `job_runs`,
 > synced-table bin-packing, and deploy gotchas — see
-> [databricks-asset-bundles](../../databricks-asset-bundles/SKILL.md).
+> [resources-and-deploy.md](./resources-and-deploy.md).

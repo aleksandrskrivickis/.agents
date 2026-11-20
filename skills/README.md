@@ -39,16 +39,14 @@ vendor-documented constraint, `[deduced]` for an inference, `[?]` for a guess wo
 
 ## The chapters
 
-### Data pipelines on Databricks
+### Databricks and Spark
 
-- [develop-sdp](./develop-sdp/SKILL.md) — Spark Declarative Pipelines: the `pyspark.pipelines` API, streaming tables vs materialized views, flows, expectations, AUTO CDC, the event log, and which features are Apache SDP vs Databricks-only.
+- [develop-databricks](./develop-databricks/SKILL.md) — the whole Databricks surface in one chapter: Spark Declarative Pipelines (the `pyspark.pipelines` API, streaming tables vs materialized views, expectations, AUTO CDC, the event log), asset bundles (`databricks.yml` targets, variables, resources, Lakebase), and the platform itself (Unity Catalog introspection, `SYNC`, the copy-vs-refresh trap, Delta time travel, secrets, model serving).
 - [develop-pyspark](./develop-pyspark/SKILL.md) — PySpark under load: pandas/Arrow UDFs and OOM, Arrow conversion failures, model serving, chunking and embeddings, stateful streaming, joins and skew, throughput, reliable API calls, file ingestion.
 - [develop-scala](./develop-scala/SKILL.md) — Scala on Spark: a custom `FileFormat` DataSource, `UnsafeRow` construction, Maven shading, ScalaTest.
-- [develop-databricks](./develop-databricks/SKILL.md) — working with the platform itself: Unity Catalog introspection through `system.information_schema`, migrating tables into UC with `SYNC`, the copy-vs-refresh trap, and Delta time travel.
 
-### Deployment and infrastructure
+### Infrastructure
 
-- [databricks-asset-bundles](./databricks-asset-bundles/SKILL.md) — `databricks.yml`: targets and deployment modes, variables and interpolation, resource types, Lakebase, post-deploy runs, and the deploy-time gotchas.
 - [develop-infrastructure](./develop-infrastructure/SKILL.md) — the Azure platform underneath: Bicep at subscription scope, Terraform for Unity Catalog, and the Azure DevOps pipelines that orchestrate both.
 
 ### Testing and CI
@@ -65,9 +63,9 @@ vendor-documented constraint, `[deduced]` for an inference, `[?]` for a guess wo
 
 ## Reading order, if you are starting cold
 
-1. **[develop-sdp](./develop-sdp/SKILL.md)** then **[develop-pyspark](./develop-pyspark/SKILL.md)** —
-   the declarative layer, then what goes wrong inside it.
-2. **[databricks-asset-bundles](./databricks-asset-bundles/SKILL.md)** then
-   **[develop-infrastructure](./develop-infrastructure/SKILL.md)** — how the work gets deployed, then
-   what it gets deployed onto.
+1. **[develop-databricks](./develop-databricks/SKILL.md)** then
+   **[develop-pyspark](./develop-pyspark/SKILL.md)** — the declarative layer and how it is deployed,
+   then what goes wrong inside a transform.
+2. **[develop-infrastructure](./develop-infrastructure/SKILL.md)** — what the work gets deployed
+   onto.
 3. **[test-python](./test-python/SKILL.md)** — and whichever CI chapter matches your host.
